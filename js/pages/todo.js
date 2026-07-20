@@ -129,10 +129,14 @@ const todoPage = {
     const todo = store.todos.find(t => t.id === id)
     if (!todo) return
 
+    const wasCompleted = todo.completed
     try {
       await api.updateTodo(id, { completed: !todo.completed })
       await store.refreshFromServer()
       this.render()
+      if (!wasCompleted) {
+        app.showXpFloat(10)
+      }
     } catch (e) {
       app.showToast('操作失败', 'error')
     }
