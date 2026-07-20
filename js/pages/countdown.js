@@ -106,7 +106,7 @@ const countdownPage = {
     document.getElementById('countdown-modal').style.display = 'none'
   },
 
-  addCountdown() {
+  async addCountdown() {
     const title = document.getElementById('countdown-title').value.trim()
     const date = document.getElementById('countdown-date').value
 
@@ -120,30 +120,27 @@ const countdownPage = {
       return
     }
 
-    const countdown = {
-      id: Date.now(),
-      title,
-      date,
-      category: this.selectedCategory,
-      createdAt: Date.now()
+    try {
+      await api.addCountdown(title, date, this.selectedCategory)
+      await store.refreshFromServer()
+      this.hideAddModal()
+      this.render()
+      app.showToast('添加成功', 'success')
+    } catch (e) {
+      app.showToast('添加失败', 'error')
     }
-
-    store.countdowns.push(countdown)
-    store.saveCountdowns()
-    store.addActivity('⏳', `添加倒计时"${title}"`, 2)
-
-    this.hideAddModal()
-    this.render()
-    app.showToast('添加成功', 'success')
   },
 
-  deleteCountdown(id) {
-    if (!confirm('确定要删除这个倒计时吗？')) return
+  async deleteCountdown(id) {
+    if (!await app.showConfirm('删除倒计时', '确定要删除这个倒计时吗？', true)) return
 
-    store.countdowns = store.countdowns.filter(c => c.id !== id)
-    store.saveCountdowns()
-
-    this.render()
-    app.showToast('删除成功', 'success')
+    try {
+      await api.deleteCountdown(id)
+      await store.refreshFromServer()
+      this.render()
+      app.showToast('删除成功', 'success')
+    } catch (e) {
+      app.showToast('删除失败', 'error')
+    }
   }
 }
