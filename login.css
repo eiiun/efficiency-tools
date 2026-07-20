@@ -117,6 +117,8 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .login-tab.active {
