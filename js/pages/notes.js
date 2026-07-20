@@ -109,7 +109,7 @@ const notesPage = {
     document.getElementById('notes-modal').style.display = 'none'
   },
 
-  addNote() {
+  async addNote() {
     const title = document.getElementById('notes-title').value.trim()
     const content = document.getElementById('notes-content').value.trim()
 
@@ -118,35 +118,31 @@ const notesPage = {
       return
     }
 
-    const note = {
-      id: Date.now(),
-      title,
-      content,
-      tag: this.selectedTag,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+    try {
+      await api.addNote(title, content, this.selectedTag)
+      await store.refreshFromServer()
+      this.hideAddModal()
+      this.render()
+      app.showToast('保存成功', 'success')
+    } catch (e) {
+      app.showToast('保存失败', 'error')
     }
-
-    store.notes.push(note)
-    store.saveNotes()
-    store.addActivity('📝', `写了笔记"${title}"`, 5)
-
-    this.hideAddModal()
-    this.render()
-    app.showToast('保存成功', 'success')
   },
 
-  viewNote(id) {
+  async viewNote(id) {
     const note = store.notes.find(n => n.id === id)
     if (!note) return
 
-    const newContent = prompt('编辑笔记内容：', note.content)
-    if (newContent !== null) {
-      note.content = newContent
-      note.updatedAt = Date.now()
-      store.saveNotes()
-      this.render()
-      app.showToast('已更新', 'success')
+    const newContent = await app.showPrompt('编辑笔记', '修改笔记内容', note.content)
+    if (newContent !== null && newContent !== note.content) {
+      try {
+        await api.updateNote(id, { content: newContent })
+        await store.refreshFromServer()
+        this.render()
+        app.showToast('已更新', 'success')
+      } catch (e) {
+        app.showToast('更新失败', 'error')
+      }
     }
   }
 }
