@@ -10,7 +10,7 @@ const loginPage = {
         }
       })
 
-      if (store.user) {
+      if (store.user && store.user.name) {
         usernameInput.value = store.user.name
       }
     }
