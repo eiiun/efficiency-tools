@@ -4,13 +4,10 @@ const app = {
   isLoginMode: true,
 
   async init() {
-    loginPage.init()
-
-    // Safety: clear "undefined" from username field if login.js is outdated
-    var unameInput = document.getElementById('login-username')
-    if (unameInput && unameInput.value === 'undefined') {
-      unameInput.value = ''
-    }
+    // 先隐藏所有页面，避免刷新时闪登录页
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.add('hidden')
+    })
 
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
@@ -39,6 +36,12 @@ const app = {
       api.removeToken()
     }
 
+    // 验证失败或未登录才显示登录页
+    loginPage.init()
+    var unameInput = document.getElementById('login-username')
+    if (unameInput && unameInput.value === 'undefined') {
+      unameInput.value = ''
+    }
     this.navigate('login', false)
   },
 
