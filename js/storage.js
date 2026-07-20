@@ -55,99 +55,179 @@ const store = {
     this.activities = storage.get('activities', [])
   },
 
-  // 从服务器同步数据到本地
-  async syncFromServer() {
-    const data = await api.pull()
-    if (!data) return false
+  // 从服务器拉取所有数据，转换成前端格式，更新 store 和 localStorage
+  async refreshFromServer() {
+    try {
+      const result = await api.get('/export')
+      if (!result.success) return false
+      const data = result.data
 
-    if (data.user) {
-      this.user = data.user
-      storage.set('user', this.user)
-    }
-
-    const keys = [
-      'todos', 'notes', 'moods', 'transactions',
-      'countdowns', 'pomodoros', 'wishlist',
-      'achievements', 'activities'
-    ]
-
-    keys.forEach(key => {
-      if (data[key] !== undefined) {
-        this[key] = data[key]
-        storage.set(key, this[key])
+      // 更新用户信息
+      if (data.user) {
+        this.user = {
+          name: data.user.username,
+          level: data.user.level,
+          xp: data.user.xp,
+          totalXp: data.user.total_xp,
+          registerDate: data.user.register_date
+        }
+        storage.set('user', this.user)
       }
-    })
 
-    return true
-  },
+      // 待办：content→title, completed 0/1→布尔, created_at→createdAt
+      if (data.todos) {
+        this.todos = data.todos.map(t => ({
+          id: t.id,
+          title: t.content,
+          priority: t.priority || 'medium',
+          completed: !!t.completed,
+          createdAt: new Date(t.created_at).getTime(),
+          completedAt: t.completed_at ? new Date(t.completed_at).getTime() : null
+        }))
+        storage.set('todos', this.todos)
+      }
 
-  // 将本地数据同步到服务器（防抖，2秒内只发一次）
-  syncToServer() {
-    if (this._syncTimer) clearTimeout(this._syncTimer)
-    this._syncTimer = setTimeout(() => {
-      api.sync({
-        user: this.user,
-        todos: this.todos,
-        notes: this.notes,
-        moods: this.moods,
-        transactions: this.transactions,
-        countdowns: this.countdowns,
-        pomodoros: this.pomodoros,
-        wishlist: this.wishlist,
-        achievements: this.achievements,
-        activities: this.activities
-      })
-    }, 2000)
+      // 笔记：tags→tag, created_at→createdAt, updated_at→updatedAt
+      if (data.notes) {
+        this.notes = data.notes.map(n => ({
+          id: n.id,
+          title: n.title,
+          content: n.content || '',
+          tag: n.tags || '其他',
+          createdAt: new Date(n.created_at).getTime(),
+          updatedAt: new Date(n.updated_at || n.created_at).getTime()
+        }))
+        storage.set('notes', this.notes)
+      }
+
+      // 心情：添加 dateStr 和 timestamp
+      if (data.moods) {
+        this.moods = data.moods.map(m => {
+          const d = new Date(m.date)
+          return {
+            id: m.id,
+            date: m.date,
+            dateStr: `${d.getMonth() + 1}月${d.getDate()}日`,
+            mood: m.mood,
+            emoji: m.emoji,
+            content: m.content || '',
+            timestamp: new Date(m.created_at).getTime()
+          }
+        })
+        storage.set('moods', this.moods)
+      }
+
+      // 记账
+      if (data.transactions) {
+        this.transactions = data.transactions.map(t => ({
+          id: t.id,
+          type: t.type,
+          amount: String(t.amount),
+          category: t.category,
+          note: t.note || '',
+          date: t.date,
+          timestamp: new Date(t.created_at).getTime()
+        }))
+        storage.set('transactions', this.transactions)
+      }
+
+      // 倒计时
+      if (data.countdowns) {
+        this.countdowns = data.countdowns.map(c => ({
+          id: c.id,
+          title: c.title,
+          date: c.date,
+          category: c.category || 'other',
+          createdAt: new Date(c.created_at).getTime()
+        }))
+        storage.set('countdowns', this.countdowns)
+      }
+
+      // 番茄钟：type→mode, completed_at→date+time
+      if (data.pomodoros) {
+        this.pomodoros = data.pomodoros.map(p => {
+          const dt = new Date(p.completed_at)
+          return {
+            id: p.id,
+            mode: p.type || 'focus',
+            duration: p.duration,
+            date: dt.toISOString().split('T')[0],
+            time: `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`
+          }
+        })
+        storage.set('pomodoros', this.pomodoros)
+      }
+
+      // 愿望清单：completed 0/1→布尔
+      if (data.wishlist) {
+        this.wishlist = data.wishlist.map(w => ({
+          id: w.id,
+          title: w.title,
+          note: w.note || '',
+          category: w.category || 'other',
+          completed: !!w.completed,
+          createdAt: new Date(w.created_at).getTime()
+        }))
+        storage.set('wishlist', this.wishlist)
+      }
+
+      // 动态：created_at→timestamp
+      if (data.activities) {
+        this.activities = data.activities.map(a => ({
+          id: a.id,
+          icon: a.icon || '📌',
+          text: a.text,
+          xp: a.xp || 0,
+          timestamp: new Date(a.created_at).getTime()
+        }))
+        storage.set('activities', this.activities)
+      }
+
+      return true
+    } catch (e) {
+      console.error('[Store] 从服务器同步失败:', e.message)
+      return false
+    }
   },
 
   saveUser() {
     storage.set('user', this.user)
-    this.syncToServer()
   },
 
   saveTodos() {
     storage.set('todos', this.todos)
-    this.syncToServer()
   },
 
   saveNotes() {
     storage.set('notes', this.notes)
-    this.syncToServer()
   },
 
   saveMoods() {
     storage.set('moods', this.moods)
-    this.syncToServer()
   },
 
   saveTransactions() {
     storage.set('transactions', this.transactions)
-    this.syncToServer()
   },
 
   saveCountdowns() {
     storage.set('countdowns', this.countdowns)
-    this.syncToServer()
   },
 
   savePomodoros() {
     storage.set('pomodoros', this.pomodoros)
-    this.syncToServer()
   },
 
   saveWishlist() {
     storage.set('wishlist', this.wishlist)
-    this.syncToServer()
   },
 
   saveAchievements() {
     storage.set('achievements', this.achievements)
-    this.syncToServer()
   },
 
   saveActivities() {
     storage.set('activities', this.activities)
-    this.syncToServer()
   },
 
   addXP(amount) {
