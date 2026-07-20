@@ -143,7 +143,12 @@ const app = {
         }
       }
     } catch (e) {
-      this.showToast('无法连接服务器，请稍后重试', 'error')
+      const msg = e.message || ''
+      if (msg.includes('密码错误') || msg.includes('尚未注册') || msg.includes('用户名已存在') || msg.includes('不能为空') || msg.includes('长度')) {
+        this.showToast(msg, 'error')
+      } else {
+        this.showToast('无法连接服务器，请稍后重试', 'error')
+      }
       console.error('[App] 登录错误:', e)
     }
   },
@@ -179,7 +184,12 @@ const app = {
         this.showToast(result.error || '注册失败', 'error')
       }
     } catch (e) {
-      this.showToast('无法连接服务器，请稍后重试', 'error')
+      const msg = e.message || ''
+      if (msg.includes('密码错误') || msg.includes('尚未注册') || msg.includes('用户名已存在') || msg.includes('不能为空') || msg.includes('长度')) {
+        this.showToast(msg, 'error')
+      } else {
+        this.showToast('无法连接服务器，请稍后重试', 'error')
+      }
       console.error('[App] 注册错误:', e)
     }
   },
