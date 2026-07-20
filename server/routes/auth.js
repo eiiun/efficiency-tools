@@ -61,13 +61,13 @@ async function login(req, res) {
     const user = await db.get('SELECT * FROM users WHERE username = $1', [username]);
     
     if (!user) {
-      return res.status(401).json({ success: false, error: '用户名或密码错误' });
+      return res.status(401).json({ success: false, error: '该账号尚未注册，请先注册', code: 'USER_NOT_FOUND' });
     }
     
     const isValidPassword = bcrypt.compareSync(password, user.password);
     
     if (!isValidPassword) {
-      return res.status(401).json({ success: false, error: '用户名或密码错误' });
+      return res.status(401).json({ success: false, error: '密码错误，请重试' });
     }
     
     await db.run(
