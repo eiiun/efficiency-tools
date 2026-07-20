@@ -138,9 +138,12 @@ const app = {
         this.showToast(`欢迎，${username}！`, 'success')
       } else {
         this.showToast(result.error || '登录失败', 'error')
+        if (result.code === 'USER_NOT_FOUND') {
+          setTimeout(() => this.switchLoginTab(false), 800)
+        }
       }
     } catch (e) {
-      this.showToast('登录失败，请检查服务器是否运行', 'error')
+      this.showToast('无法连接服务器，请稍后重试', 'error')
       console.error('[App] 登录错误:', e)
     }
   },
@@ -176,7 +179,7 @@ const app = {
         this.showToast(result.error || '注册失败', 'error')
       }
     } catch (e) {
-      this.showToast('注册失败，请检查服务器是否运行', 'error')
+      this.showToast('无法连接服务器，请稍后重试', 'error')
       console.error('[App] 注册错误:', e)
     }
   },
