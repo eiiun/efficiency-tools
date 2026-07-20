@@ -77,6 +77,12 @@ const app = {
     if (pageName === 'wishlist') wishlistPage.onShow()
     if (pageName === 'achievements') achievementsPage.onShow()
 
+    // 底部状态栏：只在首页显示
+    const statusBar = document.getElementById('px-status-bar')
+    if (statusBar) {
+      statusBar.style.display = pageName === 'home' ? '' : 'none'
+    }
+
     window.scrollTo(0, 0)
   },
 
@@ -279,6 +285,37 @@ const app = {
     setTimeout(() => {
       toast.className = 'toast'
     }, 2000)
+  },
+
+  showXpFloat(amount) {
+    const el = document.createElement('div')
+    el.className = 'xp-float'
+    el.textContent = `+${amount} XP`
+    document.body.appendChild(el)
+    setTimeout(() => el.remove(), 1300)
+  },
+
+  showAchievementPopup(achievement) {
+    const overlay = document.createElement('div')
+    overlay.className = 'achievement-popup-overlay'
+    const popup = document.createElement('div')
+    popup.className = 'achievement-popup'
+    popup.innerHTML = `
+      <div class="achievement-popup-icon">${achievement.icon}</div>
+      <div class="achievement-popup-title">成就解锁！</div>
+      <div class="achievement-popup-name">${achievement.name}</div>
+    `
+    document.body.appendChild(overlay)
+    document.body.appendChild(popup)
+    setTimeout(() => {
+      popup.classList.add('hiding')
+      overlay.style.opacity = '0'
+      overlay.style.transition = 'opacity 0.3s'
+      setTimeout(() => {
+        popup.remove()
+        overlay.remove()
+      }, 300)
+    }, 2500)
   }
 }
 
