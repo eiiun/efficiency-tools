@@ -39,7 +39,7 @@ const moodPage = {
     })
   },
 
-  saveMood() {
+  async saveMood() {
     if (!this.selectedMood) {
       app.showToast('请选择心情', 'error')
       return
@@ -49,40 +49,25 @@ const moodPage = {
     const today = new Date()
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
-    let moods = store.moods
-    const existingIndex = moods.findIndex(m => m.date === dateStr)
+    try {
+      await api.addMood(this.selectedMood, this.selectedEmoji, content, dateStr)
+      await store.refreshFromServer()
 
-    const moodData = {
-      id: existingIndex >= 0 ? moods[existingIndex].id : Date.now(),
-      date: dateStr,
-      dateStr: `${today.getMonth() + 1}月${today.getDate()}日`,
-      mood: this.selectedMood,
-      emoji: this.selectedEmoji,
-      content,
-      timestamp: Date.now()
+      document.getElementById('mood-content').value = ''
+      this.selectedMood = null
+      this.selectedEmoji = null
+      document.querySelectorAll('.mood-option').forEach(opt => {
+        opt.classList.remove('selected')
+      })
+
+      this.generateCalendar()
+      this.calculateStats()
+      this.renderRecent()
+
+      app.showToast('保存成功', 'success')
+    } catch (e) {
+      app.showToast('保存失败', 'error')
     }
-
-    if (existingIndex >= 0) {
-      moods[existingIndex] = moodData
-    } else {
-      moods.push(moodData)
-    }
-
-    store.saveMoods()
-    store.addActivity('💗', '记录今日心情', 5)
-
-    document.getElementById('mood-content').value = ''
-    this.selectedMood = null
-    this.selectedEmoji = null
-    document.querySelectorAll('.mood-option').forEach(opt => {
-      opt.classList.remove('selected')
-    })
-
-    this.generateCalendar()
-    this.calculateStats()
-    this.renderRecent()
-
-    app.showToast('保存成功', 'success')
   },
 
   generateCalendar() {
