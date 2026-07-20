@@ -6,6 +6,12 @@ const app = {
   async init() {
     loginPage.init()
 
+    // Safety: clear "undefined" from username field if login.js is outdated
+    var unameInput = document.getElementById('login-username')
+    if (unameInput && unameInput.value === 'undefined') {
+      unameInput.value = ''
+    }
+
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
     }
@@ -23,7 +29,7 @@ const app = {
         const result = await api.getProfile()
         if (result.success) {
           store.user = result.data
-          await store.syncFromServer()
+          await store.refreshFromServer()
           this.navigate('home', false)
           return
         }
@@ -73,23 +79,38 @@ const app = {
 
   toggleLoginMode(event) {
     event.preventDefault()
-    this.isLoginMode = !this.isLoginMode
+    this.switchLoginTab(!this.isLoginMode)
+  },
 
-    const loginBtn = document.getElementById('login-btn')
-    const registerBtn = document.getElementById('register-btn')
-    const modeText = document.getElementById('login-mode-text')
-    const modeLink = document.getElementById('login-mode-link')
+  switchLoginTab(isLoginMode) {
+    this.isLoginMode = isLoginMode
 
-    if (this.isLoginMode) {
-      loginBtn.style.display = 'block'
-      registerBtn.style.display = 'none'
-      modeText.textContent = '还没有账号？'
-      modeLink.textContent = '注册'
+    const tabLogin = document.getElementById('tab-login')
+    const tabRegister = document.getElementById('tab-register')
+    const submitBtn = document.getElementById('submit-btn')
+    const hintUsername = document.getElementById('hint-username')
+    const hintPassword = document.getElementById('hint-password')
+
+    if (isLoginMode) {
+      tabLogin.classList.add('active')
+      tabRegister.classList.remove('active')
+      submitBtn.textContent = '登录'
+      hintUsername.style.display = 'none'
+      hintPassword.style.display = 'none'
     } else {
-      loginBtn.style.display = 'none'
-      registerBtn.style.display = 'block'
-      modeText.textContent = '已有账号？'
-      modeLink.textContent = '登录'
+      tabLogin.classList.remove('active')
+      tabRegister.classList.add('active')
+      submitBtn.textContent = '注册'
+      hintUsername.style.display = 'block'
+      hintPassword.style.display = 'block'
+    }
+  },
+
+  handleSubmit() {
+    if (this.isLoginMode) {
+      this.handleLogin()
+    } else {
+      this.handleRegister()
     }
   },
 
@@ -110,8 +131,9 @@ const app = {
     try {
       const result = await api.login(username, password)
       if (result.success) {
+        api.setToken(result.data.token)
         store.user = result.data
-        await store.syncFromServer()
+        await store.refreshFromServer()
         this.navigate('home')
         this.showToast(`欢迎，${username}！`, 'success')
       } else {
@@ -145,7 +167,9 @@ const app = {
     try {
       const result = await api.register(username, password)
       if (result.success) {
+        api.setToken(result.data.token)
         store.user = result.data
+        await store.refreshFromServer()
         this.navigate('home')
         this.showToast(`注册成功，欢迎 ${username}！`, 'success')
       } else {
@@ -162,6 +186,67 @@ const app = {
     store.logout()
     this.navigate('login')
     this.showToast('已退出登录', 'success')
+  },
+
+  // Custom dialog system
+  _dialogResolve: null,
+
+  _showDialog(title, message, buttons, showInput = false, defaultValue = '') {
+    return new Promise((resolve) => {
+      this._dialogResolve = resolve
+      const overlay = document.getElementById('dialog-overlay')
+      const titleEl = document.getElementById('dialog-title')
+      const messageEl = document.getElementById('dialog-message')
+      const inputWrap = document.getElementById('dialog-input-wrap')
+      const inputEl = document.getElementById('dialog-input')
+      const actionsEl = document.getElementById('dialog-actions')
+
+      titleEl.textContent = title
+      messageEl.textContent = message
+      inputWrap.style.display = showInput ? 'block' : 'none'
+      if (showInput) {
+        inputEl.value = defaultValue
+        setTimeout(() => inputEl.focus(), 100)
+      }
+
+      actionsEl.innerHTML = ''
+      buttons.forEach(btn => {
+        const el = document.createElement('button')
+        el.className = `dialog-btn ${btn.class || 'dialog-btn-confirm'}`
+        el.textContent = btn.text
+        el.onclick = () => {
+          overlay.classList.remove('show')
+          if (btn.action) {
+            btn.action()
+          } else {
+            resolve(showInput ? inputEl.value : true)
+          }
+        }
+        actionsEl.appendChild(el)
+      })
+
+      overlay.classList.add('show')
+    })
+  },
+
+  showAlert(title, message) {
+    return this._showDialog(title, message, [
+      { text: '确定', class: 'dialog-btn-confirm' }
+    ])
+  },
+
+  showConfirm(title, message, danger = false) {
+    return this._showDialog(title, message, [
+      { text: '取消', class: 'dialog-btn-cancel', action: () => this._dialogResolve(false) },
+      { text: '确定', class: danger ? 'dialog-btn-danger' : 'dialog-btn-confirm' }
+    ])
+  },
+
+  showPrompt(title, message, defaultValue = '') {
+    return this._showDialog(title, message, [
+      { text: '取消', class: 'dialog-btn-cancel', action: () => this._dialogResolve(null) },
+      { text: '确定', class: 'dialog-btn-confirm' }
+    ], true, defaultValue)
   },
 
   showToast(message, type = 'default') {
