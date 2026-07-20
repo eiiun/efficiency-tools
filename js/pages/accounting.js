@@ -221,7 +221,7 @@ const accountingPage = {
     document.getElementById('accounting-modal').style.display = 'none'
   },
 
-  addTransaction() {
+  async addTransaction() {
     const amount = parseFloat(document.getElementById('accounting-amount').value)
     const note = document.getElementById('accounting-note').value.trim()
 
@@ -233,22 +233,14 @@ const accountingPage = {
     const today = new Date()
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
-    const transaction = {
-      id: Date.now(),
-      type: this.modalType,
-      amount: amount.toFixed(2),
-      category: this.selectedCategory,
-      note,
-      date: dateStr,
-      timestamp: Date.now()
+    try {
+      await api.addTransaction(this.modalType, amount, this.selectedCategory, note, dateStr)
+      await store.refreshFromServer()
+      this.hideAddModal()
+      this.render()
+      app.showToast('保存成功', 'success')
+    } catch (e) {
+      app.showToast('保存失败', 'error')
     }
-
-    store.transactions.push(transaction)
-    store.saveTransactions()
-    store.addActivity('💰', `记了一笔${this.modalType === 'income' ? '收入' : '支出'}`, 3)
-
-    this.hideAddModal()
-    this.render()
-    app.showToast('保存成功', 'success')
   }
 }
