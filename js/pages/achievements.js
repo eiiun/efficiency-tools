@@ -105,6 +105,6 @@ const achievementsPage = {
     if (!badge) return
 
     const unlocked = badge.check()
-    alert(`${badge.icon} ${badge.name}\n\n${unlocked ? '恭喜获得此成就！' : badge.description}`)
+    app.showAlert(`${badge.icon} ${badge.name}`, unlocked ? '恭喜获得此成就！' : badge.description)
   }
 }
