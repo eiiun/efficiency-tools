@@ -25,6 +25,16 @@ const homePage = {
 
     const todayMood = store.moods.find(m => m.date === today)
     document.getElementById('overview-mood').textContent = todayMood ? todayMood.emoji : '-'
+
+    // 更新底部状态栏
+    const bar = document.getElementById('px-status-bar')
+    if (bar) {
+      bar.style.display = ''
+      document.getElementById('bar-level').textContent = store.user.level
+      document.getElementById('bar-xp').textContent = store.user.xp
+      const streak = store.user.streak || 0
+      document.getElementById('bar-streak').textContent = streak
+    }
   },
 
   getGreeting() {
