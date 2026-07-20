@@ -105,7 +105,7 @@ const todoPage = {
     document.getElementById('todo-modal').style.display = 'none'
   },
 
-  addTodo() {
+  async addTodo() {
     const input = document.getElementById('todo-input')
     const title = input.value.trim()
 
@@ -114,48 +114,40 @@ const todoPage = {
       return
     }
 
-    const todo = {
-      id: Date.now(),
-      title,
-      priority: this.currentPriority,
-      completed: false,
-      createdAt: Date.now(),
-      completedAt: null
+    try {
+      await api.addTodo(title, this.currentPriority)
+      await store.refreshFromServer()
+      this.hideAddModal()
+      this.render()
+      app.showToast('添加成功', 'success')
+    } catch (e) {
+      app.showToast('添加失败', 'error')
     }
-
-    store.todos.push(todo)
-    store.saveTodos()
-    store.addActivity('📝', `添加任务"${title}"`, 2)
-
-    this.hideAddModal()
-    this.render()
-    app.showToast('添加成功', 'success')
   },
 
-  toggle(id) {
+  async toggle(id) {
     const todo = store.todos.find(t => t.id === id)
     if (!todo) return
 
-    todo.completed = !todo.completed
-    todo.completedAt = todo.completed ? Date.now() : null
-
-    store.saveTodos()
-    
-    if (todo.completed) {
-      store.addActivity('✅', `完成任务"${todo.title}"`, 10)
+    try {
+      await api.updateTodo(id, { completed: !todo.completed })
+      await store.refreshFromServer()
+      this.render()
+    } catch (e) {
+      app.showToast('操作失败', 'error')
     }
-
-    this.render()
   },
 
-  deleteTodo(id) {
-    if (!confirm('确定要删除这个任务吗？')) return
+  async deleteTodo(id) {
+    if (!await app.showConfirm('删除任务', '确定要删除这个任务吗？', true)) return
 
-    const todo = store.todos.find(t => t.id === id)
-    store.todos = store.todos.filter(t => t.id !== id)
-    store.saveTodos()
-
-    this.render()
-    app.showToast('删除成功', 'success')
+    try {
+      await api.deleteTodo(id)
+      await store.refreshFromServer()
+      this.render()
+      app.showToast('删除成功', 'success')
+    } catch (e) {
+      app.showToast('删除失败', 'error')
+    }
   }
 }
