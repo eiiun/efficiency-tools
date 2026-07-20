@@ -2,19 +2,5 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm run init-db && npm start"
+startCommand = "npm start"
 healthcheckPath = "/api/health"
-
-[env]
-PORT = "${{PORT}}"
-NODE_ENV = "production"
-JWT_SECRET = "${{JWT_SECRET}}"
-
-[[services]]
-name = "efficiency-tools"
-env = "node"
-plan = "starter"
-
-[services.ports]
-port = "${{PORT}}"
-protocol = "http"
