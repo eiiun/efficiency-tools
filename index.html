@@ -725,5 +725,38 @@
   <script src="js/pages/wishlist.js"></script>
   <script src="js/pages/achievements.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    (function() {
+      // Self-contained login tab switcher (works even if app.js is cached/missing)
+      var isLogin = true;
+      function doSwitchTab(loginMode) {
+        isLogin = loginMode;
+        var t1 = document.getElementById('tab-login');
+        var t2 = document.getElementById('tab-register');
+        var btn = document.getElementById('submit-btn');
+        var h1 = document.getElementById('hint-username');
+        var h2 = document.getElementById('hint-password');
+        if (t1) t1.className = 'login-tab' + (loginMode ? ' active' : '');
+        if (t2) t2.className = 'login-tab' + (!loginMode ? ' active' : '');
+        if (btn) btn.textContent = loginMode ? '登录' : '注册';
+        if (h1) h1.style.display = loginMode ? 'none' : 'block';
+        if (h2) h2.style.display = loginMode ? 'none' : 'block';
+        // Also sync with app if available
+        if (window.app && window.app.switchLoginTab) {
+          window.app.isLoginMode = loginMode;
+        }
+      }
+      // Clear "undefined" username
+      var ui = document.getElementById('login-username');
+      if (ui && ui.value === 'undefined') ui.value = '';
+      // Expose globally so onclick works
+      window._switchTab = doSwitchTab;
+      // Override tab onclick to use our function
+      var tl = document.getElementById('tab-login');
+      var tr = document.getElementById('tab-register');
+      if (tl) tl.onclick = function() { doSwitchTab(true); };
+      if (tr) tr.onclick = function() { doSwitchTab(false); };
+    })();
+  </script>
 </body>
 </html>
