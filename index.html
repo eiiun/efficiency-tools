@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>我的效率工具</title>
+  <link rel="preconnect" href="https://fonts.googleapis.cn">
+  <link href="https://fonts.googleapis.cn/css?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/login.css">
 </head>
@@ -12,17 +14,47 @@
     <!-- 登录页 -->
     <div id="page-login" class="page page-login">
       <div class="login-bg-decoration">
-        <div class="login-circle login-circle-1"></div>
-        <div class="login-circle login-circle-2"></div>
-        <div class="login-circle login-circle-3"></div>
+        <!-- 像素小动物装饰 -->
+        <svg class="px-login-animal px-login-bunny" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="0" width="2" height="3" fill="#fff"/><rect x="9" y="0" width="2" height="3" fill="#fff"/>
+          <rect x="4" y="3" width="8" height="7" fill="#fff"/>
+          <rect x="3" y="5" width="1" height="3" fill="#fff"/><rect x="12" y="5" width="1" height="3" fill="#fff"/>
+          <rect x="6" y="6" width="1" height="1" fill="#333"/><rect x="9" y="6" width="1" height="1" fill="#333"/>
+          <rect x="7" y="8" width="2" height="1" fill="#fca5a5"/>
+          <rect x="5" y="10" width="2" height="2" fill="#fff"/><rect x="9" y="10" width="2" height="2" fill="#fff"/>
+        </svg>
+        <svg class="px-login-animal px-login-cat" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="1" width="2" height="3" fill="#fbbf24"/><rect x="11" y="1" width="2" height="3" fill="#fbbf24"/>
+          <rect x="4" y="4" width="8" height="6" fill="#fbbf24"/>
+          <rect x="5" y="6" width="1" height="1" fill="#333"/><rect x="10" y="6" width="1" height="1" fill="#333"/>
+          <rect x="7" y="8" width="2" height="1" fill="#fca5a5"/>
+          <rect x="5" y="10" width="6" height="3" fill="#fbbf24"/>
+          <rect x="4" y="13" width="2" height="2" fill="#fbbf24"/><rect x="10" y="13" width="2" height="2" fill="#fbbf24"/>
+        </svg>
+        <svg class="px-login-animal px-login-frog" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="3" height="3" fill="#4ade80"/><rect x="10" y="3" width="3" height="3" fill="#4ade80"/>
+          <rect x="4" y="6" width="8" height="5" fill="#4ade80"/>
+          <rect x="4" y="4" width="1" height="1" fill="#333"/><rect x="11" y="4" width="1" height="1" fill="#333"/>
+          <rect x="5" y="8" width="6" height="1" fill="#333"/>
+          <rect x="3" y="11" width="3" height="2" fill="#4ade80"/><rect x="10" y="11" width="3" height="2" fill="#4ade80"/>
+        </svg>
+        <!-- 像素星星 -->
+        <svg class="px-login-sparkle px-login-star1" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="0" width="2" height="1" fill="#fbbf24"/><rect x="2" y="1" width="4" height="1" fill="#fbbf24"/><rect x="0" y="2" width="8" height="2" fill="#fbbf24"/><rect x="1" y="4" width="6" height="1" fill="#fbbf24"/><rect x="2" y="5" width="4" height="1" fill="#fbbf24"/><rect x="1" y="6" width="2" height="1" fill="#fbbf24"/><rect x="5" y="6" width="2" height="1" fill="#fbbf24"/>
+        </svg>
+        <svg class="px-login-sparkle px-login-star2" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="0" width="2" height="1" fill="#a78bfa"/><rect x="2" y="1" width="4" height="1" fill="#a78bfa"/><rect x="0" y="2" width="8" height="2" fill="#a78bfa"/><rect x="1" y="4" width="6" height="1" fill="#a78bfa"/><rect x="2" y="5" width="4" height="1" fill="#a78bfa"/><rect x="1" y="6" width="2" height="1" fill="#a78bfa"/><rect x="5" y="6" width="2" height="1" fill="#a78bfa"/>
+        </svg>
+        <svg class="px-login-sparkle px-login-star3" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="0" width="2" height="1" fill="#f87171"/><rect x="2" y="1" width="4" height="1" fill="#f87171"/><rect x="0" y="2" width="8" height="2" fill="#f87171"/><rect x="1" y="4" width="6" height="1" fill="#f87171"/><rect x="2" y="5" width="4" height="1" fill="#f87171"/><rect x="1" y="6" width="2" height="1" fill="#f87171"/><rect x="5" y="6" width="2" height="1" fill="#f87171"/>
+        </svg>
       </div>
       <div class="login-container">
         <div class="login-brand">
-          <div class="brand-icon">⚡</div>
+          <div class="brand-icon pixel-brand-icon">⚡</div>
           <h1 class="brand-title">效率工具</h1>
-          <p class="brand-subtitle">让每一天更有意义</p>
         </div>
-        <div class="login-card">
+        <div class="login-card pixel-login-card">
           <div class="login-tabs">
             <div class="login-tab active" id="tab-login" onclick="app.switchLoginTab(true)">登录</div>
             <div class="login-tab" id="tab-register" onclick="app.switchLoginTab(false)">注册</div>
@@ -38,7 +70,7 @@
               <input type="password" id="login-password" placeholder="请输入密码" />
               <div class="field-hint" id="hint-password">至少 6 个字符</div>
             </div>
-            <button class="btn-primary" id="submit-btn" onclick="app.handleSubmit()">登录</button>
+            <button class="btn-primary pixel-btn" id="submit-btn" onclick="app.handleSubmit()">登录</button>
           </div>
         </div>
       </div>
@@ -46,9 +78,98 @@
 
     <!-- 首页 -->
     <div id="page-home" class="page page-home hidden">
+      <div class="home-bg-decoration">
+        <!-- 像素小动物装饰 -->
+        <svg class="px-animal px-bunny" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="0" width="2" height="3" fill="#fff"/><rect x="9" y="0" width="2" height="3" fill="#fff"/>
+          <rect x="4" y="3" width="8" height="7" fill="#fff"/>
+          <rect x="3" y="5" width="1" height="3" fill="#fff"/><rect x="12" y="5" width="1" height="3" fill="#fff"/>
+          <rect x="6" y="6" width="1" height="1" fill="#333"/><rect x="9" y="6" width="1" height="1" fill="#333"/>
+          <rect x="7" y="8" width="2" height="1" fill="#fca5a5"/>
+          <rect x="5" y="10" width="2" height="2" fill="#fff"/><rect x="9" y="10" width="2" height="2" fill="#fff"/>
+        </svg>
+        <svg class="px-animal px-cat" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="1" width="2" height="3" fill="#fbbf24"/><rect x="11" y="1" width="2" height="3" fill="#fbbf24"/>
+          <rect x="4" y="4" width="8" height="6" fill="#fbbf24"/>
+          <rect x="5" y="6" width="1" height="1" fill="#333"/><rect x="10" y="6" width="1" height="1" fill="#333"/>
+          <rect x="7" y="8" width="2" height="1" fill="#fca5a5"/>
+          <rect x="5" y="10" width="6" height="3" fill="#fbbf24"/>
+          <rect x="4" y="13" width="2" height="2" fill="#fbbf24"/><rect x="10" y="13" width="2" height="2" fill="#fbbf24"/>
+        </svg>
+        <svg class="px-animal px-frog" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="2" width="3" height="3" fill="#4ade80"/><rect x="10" y="2" width="3" height="3" fill="#4ade80"/>
+          <rect x="4" y="3" width="1" height="1" fill="#333"/><rect x="11" y="3" width="1" height="1" fill="#333"/>
+          <rect x="4" y="5" width="8" height="5" fill="#4ade80"/>
+          <rect x="5" y="6" width="1" height="1" fill="#333"/><rect x="10" y="6" width="1" height="1" fill="#333"/>
+          <rect x="6" y="8" width="4" height="1" fill="#fca5a5"/>
+          <rect x="3" y="10" width="10" height="3" fill="#4ade80"/>
+          <rect x="4" y="13" width="2" height="2" fill="#4ade80"/><rect x="10" y="13" width="2" height="2" fill="#4ade80"/>
+        </svg>
+        <svg class="px-animal px-pig" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="1" width="2" height="2" fill="#fca5a5"/><rect x="9" y="1" width="2" height="2" fill="#fca5a5"/>
+          <rect x="4" y="3" width="8" height="7" fill="#fca5a5"/>
+          <rect x="5" y="5" width="1" height="1" fill="#333"/><rect x="10" y="5" width="1" height="1" fill="#333"/>
+          <rect x="6" y="7" width="4" height="2" fill="#f9a8d4"/>
+          <rect x="7" y="8" width="1" height="1" fill="#333"/><rect x="8" y="8" width="1" height="1" fill="#333"/>
+          <rect x="5" y="10" width="2" height="2" fill="#fca5a5"/><rect x="9" y="10" width="2" height="2" fill="#fca5a5"/>
+        </svg>
+        <!-- 散落小星星 -->
+        <svg class="px-sparkle px-sparkle-1" viewBox="0 0 8 8"><rect x="3" y="0" width="2" height="8" fill="#fbbf24"/><rect x="0" y="3" width="8" height="2" fill="#fbbf24"/></svg>
+        <svg class="px-sparkle px-sparkle-2" viewBox="0 0 8 8"><rect x="3" y="0" width="2" height="8" fill="#a78bfa"/><rect x="0" y="3" width="8" height="2" fill="#a78bfa"/></svg>
+        <svg class="px-sparkle px-sparkle-3" viewBox="0 0 8 8"><rect x="3" y="0" width="2" height="8" fill="#34d399"/><rect x="0" y="3" width="8" height="2" fill="#34d399"/></svg>
+        <svg class="px-sparkle px-sparkle-4" viewBox="0 0 8 8"><rect x="3" y="0" width="2" height="8" fill="#f87171"/><rect x="0" y="3" width="8" height="2" fill="#f87171"/></svg>
+        <!-- 像素太阳 -->
+        <svg class="px-sun" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="1" width="4" height="2" fill="#fbbf24"/><rect x="6" y="13" width="4" height="2" fill="#fbbf24"/>
+          <rect x="1" y="6" width="2" height="4" fill="#fbbf24"/><rect x="13" y="6" width="2" height="4" fill="#fbbf24"/>
+          <rect x="3" y="3" width="2" height="2" fill="#fbbf24"/><rect x="11" y="3" width="2" height="2" fill="#fbbf24"/>
+          <rect x="3" y="11" width="2" height="2" fill="#fbbf24"/><rect x="11" y="11" width="2" height="2" fill="#fbbf24"/>
+          <rect x="5" y="5" width="6" height="6" fill="#fde68a"/>
+          <rect x="6" y="7" width="1" height="1" fill="#333"/><rect x="9" y="7" width="1" height="1" fill="#333"/>
+          <rect x="7" y="9" width="2" height="1" fill="#f97316"/>
+        </svg>
+        <!-- 像素蘑菇 -->
+        <svg class="px-mushroom" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="10" height="2" fill="#ef4444"/><rect x="2" y="6" width="12" height="3" fill="#ef4444"/>
+          <rect x="4" y="5" width="2" height="2" fill="#fff"/><rect x="8" y="5" width="2" height="2" fill="#fff"/><rect x="11" y="7" width="2" height="1" fill="#fff"/>
+          <rect x="6" y="9" width="4" height="5" fill="#fbbf24"/><rect x="5" y="14" width="6" height="1" fill="#d97706"/>
+        </svg>
+        <!-- 像素云朵 -->
+        <svg class="px-cloud px-cloud-1" viewBox="0 0 24 12" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="0" width="8" height="3" fill="rgba(255,255,255,0.7)"/>
+          <rect x="2" y="3" width="20" height="3" fill="rgba(255,255,255,0.7)"/>
+          <rect x="0" y="6" width="24" height="3" fill="rgba(255,255,255,0.7)"/>
+          <rect x="2" y="9" width="20" height="3" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+        <svg class="px-cloud px-cloud-2" viewBox="0 0 24 12" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="0" width="6" height="3" fill="rgba(255,255,255,0.6)"/>
+          <rect x="3" y="3" width="18" height="3" fill="rgba(255,255,255,0.6)"/>
+          <rect x="0" y="6" width="24" height="3" fill="rgba(255,255,255,0.6)"/>
+          <rect x="3" y="9" width="18" height="3" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+      </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <!-- 草叶 -->
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+          <!-- 小花 -->
+          <rect x="45" y="2" width="2" height="2" fill="#fbbf24"/><rect x="150" y="1" width="2" height="2" fill="#f87171"/>
+          <rect x="260" y="2" width="2" height="2" fill="#a78bfa"/><rect x="340" y="1" width="2" height="2" fill="#fbbf24"/>
+        </svg>
+      </div>
       <div class="header">
         <div class="header-left">
-          <div class="user-avatar" id="home-avatar">用</div>
+          <div class="user-avatar pixel-avatar" id="home-avatar">雷</div>
         </div>
         <div class="header-center">
           <div class="header-greeting" id="home-greeting">你好</div>
@@ -74,35 +195,35 @@
         <div class="section-title">功能目录</div>
         <div class="menu-grid">
           <div class="menu-item" onclick="app.navigate('todo')">
-            <div class="menu-icon menu-icon-blue">✅</div>
+            <div class="menu-icon menu-icon-blue"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="3" y="1" width="10" height="13" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/><rect x="5" y="4" width="6" height="1" fill="#3b82f6"/><rect x="5" y="7" width="6" height="1" fill="#3b82f6"/><rect x="5" y="10" width="4" height="1" fill="#3b82f6"/><rect x="4" y="3" width="1" height="1" fill="#3b82f6"/><rect x="4" y="6" width="1" height="1" fill="#3b82f6"/></svg></div>
             <div class="menu-text">待办事项</div>
           </div>
           <div class="menu-item" onclick="app.navigate('notes')">
-            <div class="menu-icon menu-icon-yellow">📝</div>
+            <div class="menu-icon menu-icon-yellow"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="3" y="1" width="10" height="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/><rect x="5" y="4" width="6" height="1" fill="#d97706"/><rect x="5" y="6" width="6" height="1" fill="#d97706"/><rect x="5" y="8" width="6" height="1" fill="#d97706"/><rect x="5" y="10" width="4" height="1" fill="#d97706"/></svg></div>
             <div class="menu-text">随手笔记</div>
           </div>
           <div class="menu-item" onclick="app.navigate('mood')">
-            <div class="menu-icon menu-icon-pink">💗</div>
+            <div class="menu-icon menu-icon-pink"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="3" y="2" width="10" height="10" rx="0" fill="#fce7f3" stroke="#ec4899" stroke-width="1"/><rect x="5" y="5" width="2" height="2" fill="#ec4899"/><rect x="9" y="5" width="2" height="2" fill="#ec4899"/><rect x="5" y="9" width="1" height="1" fill="#ec4899"/><rect x="6" y="10" width="4" height="1" fill="#ec4899"/><rect x="10" y="9" width="1" height="1" fill="#ec4899"/></svg></div>
             <div class="menu-text">心情日记</div>
           </div>
           <div class="menu-item" onclick="app.navigate('accounting')">
-            <div class="menu-icon menu-icon-green">💰</div>
+            <div class="menu-icon menu-icon-green"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="2" y="3" width="12" height="10" fill="#d1fae5" stroke="#10b981" stroke-width="1"/><rect x="7" y="5" width="2" height="6" fill="#10b981"/><rect x="5" y="6" width="1" height="1" fill="#10b981"/><rect x="10" y="6" width="1" height="1" fill="#10b981"/><rect x="5" y="9" width="1" height="1" fill="#10b981"/><rect x="10" y="9" width="1" height="1" fill="#10b981"/></svg></div>
             <div class="menu-text">简单记账</div>
           </div>
           <div class="menu-item" onclick="app.navigate('countdown')">
-            <div class="menu-icon menu-icon-purple">⏳</div>
+            <div class="menu-icon menu-icon-purple"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="4" y="1" width="8" height="2" fill="#a78bfa"/><rect x="4" y="13" width="8" height="2" fill="#a78bfa"/><rect x="5" y="3" width="6" height="4" fill="#ede9fe" stroke="#a78bfa" stroke-width="1"/><rect x="5" y="9" width="6" height="4" fill="#ede9fe" stroke="#a78bfa" stroke-width="1"/><rect x="6" y="7" width="4" height="2" fill="#a78bfa"/><rect x="7" y="4" width="2" height="2" fill="#c4b5fd"/><rect x="7" y="10" width="2" height="2" fill="#c4b5fd"/></svg></div>
             <div class="menu-text">倒计时</div>
           </div>
           <div class="menu-item" onclick="app.navigate('pomodoro')">
-            <div class="menu-icon menu-icon-red">🍅</div>
+            <div class="menu-icon menu-icon-red"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="4" y="4" width="8" height="8" fill="#fca5a5" stroke="#ef4444" stroke-width="1"/><rect x="6" y="2" width="4" height="2" fill="#22c55e"/><rect x="7" y="1" width="2" height="1" fill="#16a34a"/><rect x="6" y="6" width="1" height="1" fill="#ef4444"/><rect x="9" y="6" width="1" height="1" fill="#ef4444"/><rect x="6" y="9" width="4" height="1" fill="#ef4444"/></svg></div>
             <div class="menu-text">番茄钟</div>
           </div>
           <div class="menu-item" onclick="app.navigate('wishlist')">
-            <div class="menu-icon menu-icon-orange">✨</div>
+            <div class="menu-icon menu-icon-orange"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="7" y="2" width="2" height="2" fill="#fbbf24"/><rect x="5" y="4" width="6" height="2" fill="#fbbf24"/><rect x="3" y="6" width="10" height="2" fill="#fbbf24"/><rect x="4" y="8" width="8" height="2" fill="#f59e0b"/><rect x="5" y="10" width="6" height="2" fill="#f59e0b"/><rect x="6" y="12" width="4" height="1" fill="#d97706"/><rect x="7" y="13" width="2" height="1" fill="#d97706"/></svg></div>
             <div class="menu-text">愿望清单</div>
           </div>
           <div class="menu-item" onclick="app.navigate('achievements')">
-            <div class="menu-icon menu-icon-cyan">🏆</div>
+            <div class="menu-icon menu-icon-cyan"><svg viewBox="0 0 16 16" class="px-icon" shape-rendering="crispEdges"><rect x="4" y="2" width="8" height="6" fill="#fbbf24" stroke="#d97706" stroke-width="1"/><rect x="3" y="3" width="1" height="3" fill="#d97706"/><rect x="12" y="3" width="1" height="3" fill="#d97706"/><rect x="6" y="8" width="4" height="2" fill="#d97706"/><rect x="5" y="10" width="6" height="2" fill="#fbbf24" stroke="#d97706" stroke-width="1"/><rect x="7" y="4" width="2" height="2" fill="#fef3c7"/></svg></div>
             <div class="menu-text">成就</div>
           </div>
         </div>
@@ -110,21 +231,21 @@
         <div class="section-title">今日概览</div>
         <div class="overview-cards">
           <div class="overview-card">
-            <div class="overview-icon">✅</div>
+            <div class="overview-icon"><svg viewBox="0 0 16 16" class="px-icon-sm" shape-rendering="crispEdges"><rect x="3" y="1" width="10" height="13" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/><rect x="5" y="4" width="6" height="1" fill="#3b82f6"/><rect x="5" y="7" width="6" height="1" fill="#3b82f6"/><rect x="5" y="10" width="4" height="1" fill="#3b82f6"/></svg></div>
             <div class="overview-info">
               <div class="overview-value" id="overview-todo">0</div>
               <div class="overview-label">待办任务</div>
             </div>
           </div>
           <div class="overview-card">
-            <div class="overview-icon">🍅</div>
+            <div class="overview-icon"><svg viewBox="0 0 16 16" class="px-icon-sm" shape-rendering="crispEdges"><rect x="4" y="4" width="8" height="8" fill="#fca5a5" stroke="#ef4444" stroke-width="1"/><rect x="6" y="2" width="4" height="2" fill="#22c55e"/><rect x="7" y="1" width="2" height="1" fill="#16a34a"/></svg></div>
             <div class="overview-info">
               <div class="overview-value" id="overview-pomodoro">0</div>
               <div class="overview-label">今日番茄</div>
             </div>
           </div>
           <div class="overview-card">
-            <div class="overview-icon">💗</div>
+            <div class="overview-icon"><svg viewBox="0 0 16 16" class="px-icon-sm" shape-rendering="crispEdges"><rect x="3" y="2" width="10" height="10" fill="#fce7f3" stroke="#ec4899" stroke-width="1"/><rect x="5" y="5" width="2" height="2" fill="#ec4899"/><rect x="9" y="5" width="2" height="2" fill="#ec4899"/><rect x="6" y="9" width="4" height="1" fill="#ec4899"/></svg></div>
             <div class="overview-info">
               <div class="overview-value" id="overview-mood">-</div>
               <div class="overview-label">今日心情</div>
@@ -207,6 +328,21 @@
           </div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
 
     <!-- 随手笔记页 -->
@@ -262,6 +398,21 @@
             <button class="modal-btn modal-btn-confirm" onclick="notesPage.addNote()">保存</button>
           </div>
         </div>
+      </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
       </div>
     </div>
 
@@ -329,6 +480,21 @@
           <div class="recent-list" id="mood-recent"></div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
 
     <!-- 简单记账页 -->
@@ -349,6 +515,17 @@
             <button class="nav-btn" onclick="accountingPage.nextMonth()">›</button>
           </div>
           <div class="balance-card">
+            <svg class="balance-grass" viewBox="0 0 400 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="6" width="2" height="10" fill="#22c55e"/><rect x="25" y="4" width="2" height="12" fill="#16a34a"/>
+              <rect x="48" y="8" width="2" height="8" fill="#22c55e"/><rect x="70" y="5" width="2" height="11" fill="#15803d"/>
+              <rect x="95" y="7" width="2" height="9" fill="#22c55e"/><rect x="118" y="4" width="2" height="12" fill="#16a34a"/>
+              <rect x="142" y="6" width="2" height="10" fill="#22c55e"/><rect x="168" y="8" width="2" height="8" fill="#15803d"/>
+              <rect x="190" y="5" width="2" height="11" fill="#22c55e"/><rect x="215" y="7" width="2" height="9" fill="#16a34a"/>
+              <rect x="240" y="4" width="2" height="12" fill="#22c55e"/><rect x="265" y="6" width="2" height="10" fill="#15803d"/>
+              <rect x="290" y="8" width="2" height="8" fill="#22c55e"/><rect x="315" y="5" width="2" height="11" fill="#16a34a"/>
+              <rect x="340" y="7" width="2" height="9" fill="#22c55e"/><rect x="365" y="4" width="2" height="12" fill="#15803d"/>
+              <rect x="388" y="6" width="2" height="10" fill="#22c55e"/>
+            </svg>
             <div class="balance-label">本月结余</div>
             <div class="balance-value" id="accounting-balance">¥0.00</div>
             <div class="balance-detail">
@@ -415,7 +592,23 @@
           </div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
+
 
     <!-- 倒计时页 -->
     <div id="page-countdown" class="page page-countdown hidden">
@@ -484,7 +677,23 @@
           </div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
+
 
     <!-- 番茄钟页 -->
     <div id="page-pomodoro" class="page page-pomodoro hidden">
@@ -557,7 +766,23 @@
           <div class="history-list" id="pomodoro-history"></div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
+
 
     <!-- 愿望清单页 -->
     <div id="page-wishlist" class="page page-wishlist hidden">
@@ -638,7 +863,23 @@
           </div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
+
 
     <!-- 成就页 -->
     <div id="page-achievements" class="page page-achievements hidden">
@@ -695,10 +936,42 @@
           <div class="activity-list" id="achievements-activities"></div>
         </div>
       </div>
+      <div class="px-ground">
+        <svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="400" height="8" fill="#4ade80"/>
+          <rect x="0" y="8" width="400" height="4" fill="#22c55e"/>
+          <rect x="0" y="12" width="400" height="12" fill="#16a34a"/>
+          <rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/>
+          <rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/>
+        </svg>
+      </div>
     </div>
   </div>
 
+
   <div class="toast" id="toast"></div>
+
+  <!-- 底部状态栏 -->
+  <div class="px-status-bar" id="px-status-bar" style="display:none">
+    <div class="px-status-item">
+      <svg class="px-status-icon" viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" fill="#fbbf24"/><rect x="5" y="1" width="2" height="2" fill="#fbbf24"/><rect x="9" y="1" width="2" height="2" fill="#fbbf24"/><rect x="6" y="6" width="1" height="1" fill="#333"/><rect x="9" y="6" width="1" height="1" fill="#333"/><rect x="7" y="9" width="2" height="1" fill="#333"/></svg>
+      <span>Lv.<span class="px-status-value" id="bar-level">1</span></span>
+    </div>
+    <div class="px-status-item">
+      <svg class="px-status-icon" viewBox="0 0 16 16"><rect x="7" y="2" width="2" height="12" fill="#a78bfa"/><rect x="5" y="4" width="6" height="2" fill="#c4b5fd"/><rect x="6" y="3" width="4" height="1" fill="#ede9fe"/></svg>
+      <span class="px-status-value" id="bar-xp">0</span><span>XP</span>
+    </div>
+    <div class="px-status-item">
+      <svg class="px-status-icon" viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" fill="#fca5a5" stroke="#ef4444" stroke-width="1"/><rect x="6" y="2" width="4" height="2" fill="#22c55e"/><rect x="7" y="1" width="2" height="1" fill="#16a34a"/></svg>
+      <span class="px-status-value" id="bar-streak">0</span><span>天</span>
+    </div>
+  </div>
 
   <!-- Custom Dialog -->
   <div class="dialog-overlay" id="dialog-overlay">
