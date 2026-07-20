@@ -19,9 +19,9 @@ const pomodoroPage = {
     this.renderHistory()
   },
 
-  switchMode(mode) {
+  async switchMode(mode) {
     if (this.isRunning) {
-      if (!confirm('当前计时将被重置，确定切换吗？')) return
+      if (!await app.showConfirm('切换模式', '当前计时将被重置，确定切换吗？')) return
       this.stopTimer()
     }
 
@@ -123,41 +123,32 @@ const pomodoroPage = {
     }
   },
 
-  completeSession() {
+  async completeSession() {
     this.stopTimer()
 
-    const now = new Date()
-    const today = now.toISOString().split('T')[0]
-    
-    const session = {
-      id: Date.now(),
-      mode: this.currentMode,
-      duration: this.currentMode === 'focus' ? this.focusMinutes : this.restMinutes,
-      date: today,
-      time: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    }
+    const duration = this.currentMode === 'focus' ? this.focusMinutes : this.restMinutes
 
-    store.pomodoros.push(session)
-    store.savePomodoros()
+    try {
+      await api.addPomodoro(duration, this.currentMode)
+      await store.refreshFromServer()
 
-    if (this.currentMode === 'focus') {
-      store.addActivity('🍅', '完成一个番茄钟', 15)
-    }
+      this.updateStats()
+      this.renderHistory()
+      this.resetTimer()
 
-    this.updateStats()
-    this.renderHistory()
-    this.resetTimer()
+      if (this.currentMode === 'focus') {
+        app.showToast('番茄完成！休息一下吧', 'success')
+      } else {
+        app.showToast('休息结束！继续加油', 'success')
+      }
 
-    if (this.currentMode === 'focus') {
-      app.showToast('番茄完成！休息一下吧', 'success')
-    } else {
-      app.showToast('休息结束！继续加油', 'success')
-    }
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('番茄钟', {
-        body: this.currentMode === 'focus' ? '专注完成！休息一下吧' : '休息结束！继续加油'
-      })
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('番茄钟', {
+          body: this.currentMode === 'focus' ? '专注完成！休息一下吧' : '休息结束！继续加油'
+        })
+      }
+    } catch (e) {
+      app.showToast('保存失败', 'error')
     }
   },
 
