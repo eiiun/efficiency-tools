@@ -107,7 +107,7 @@ const wishlistPage = {
     document.getElementById('wishlist-modal').style.display = 'none'
   },
 
-  addWish() {
+  async addWish() {
     const title = document.getElementById('wishlist-title').value.trim()
     const note = document.getElementById('wishlist-note').value.trim()
 
@@ -116,51 +116,45 @@ const wishlistPage = {
       return
     }
 
-    const catInfo = this.categoryInfo[this.selectedCategory] || this.categoryInfo.other
-
-    const wish = {
-      id: Date.now(),
-      title,
-      note,
-      category: this.selectedCategory,
-      icon: catInfo.icon,
-      bgColor: catInfo.bgColor,
-      textColor: catInfo.textColor,
-      completed: false,
-      createdAt: Date.now()
+    try {
+      await api.addWish(title, note, this.selectedCategory)
+      await store.refreshFromServer()
+      this.hideAddModal()
+      this.render()
+      app.showToast('添加成功', 'success')
+    } catch (e) {
+      app.showToast('添加失败', 'error')
     }
-
-    store.wishlist.push(wish)
-    store.saveWishlist()
-    store.addActivity('✨', `添加愿望"${title}"`, 3)
-
-    this.hideAddModal()
-    this.render()
-    app.showToast('添加成功', 'success')
   },
 
-  toggleComplete(id) {
+  async toggleComplete(id) {
     const wish = store.wishlist.find(w => w.id === id)
     if (!wish) return
 
-    wish.completed = !wish.completed
-    store.saveWishlist()
+    try {
+      await api.updateWish(id, !wish.completed)
+      await store.refreshFromServer()
 
-    if (wish.completed) {
-      store.addActivity('🎉', `达成愿望"${wish.title}"`, 20)
-      app.showToast('恭喜达成！', 'success')
+      if (!wish.completed) {
+        app.showToast('恭喜达成！', 'success')
+      }
+
+      this.render()
+    } catch (e) {
+      app.showToast('操作失败', 'error')
     }
-
-    this.render()
   },
 
-  deleteWish(id) {
-    if (!confirm('确定要删除这个愿望吗？')) return
+  async deleteWish(id) {
+    if (!await app.showConfirm('删除愿望', '确定要删除这个愿望吗？', true)) return
 
-    store.wishlist = store.wishlist.filter(w => w.id !== id)
-    store.saveWishlist()
-
-    this.render()
-    app.showToast('删除成功', 'success')
+    try {
+      await api.deleteWish(id)
+      await store.refreshFromServer()
+      this.render()
+      app.showToast('删除成功', 'success')
+    } catch (e) {
+      app.showToast('删除失败', 'error')
+    }
   }
 }
