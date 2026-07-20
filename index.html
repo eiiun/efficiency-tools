@@ -10,30 +10,35 @@
   <div id="app">
     <!-- 登录页 -->
     <div id="page-login" class="page page-login">
+      <div class="login-bg-decoration">
+        <div class="login-circle login-circle-1"></div>
+        <div class="login-circle login-circle-2"></div>
+        <div class="login-circle login-circle-3"></div>
+      </div>
       <div class="login-container">
         <div class="login-brand">
           <div class="brand-icon">⚡</div>
           <h1 class="brand-title">效率工具</h1>
           <p class="brand-subtitle">让每一天更有意义</p>
         </div>
-        <div class="login-form">
-          <div class="form-group">
-            <label>用户名</label>
-            <input type="text" id="login-username" placeholder="请输入用户名" />
+        <div class="login-card">
+          <div class="login-tabs">
+            <div class="login-tab active" id="tab-login" onclick="app.switchLoginTab(true)">登录</div>
+            <div class="login-tab" id="tab-register" onclick="app.switchLoginTab(false)">注册</div>
           </div>
-          <div class="form-group">
-            <label>密码</label>
-            <input type="password" id="login-password" placeholder="请输入密码" />
+          <div class="login-form">
+            <div class="form-group">
+              <label>用户名</label>
+              <input type="text" id="login-username" placeholder="请输入用户名" />
+              <div class="field-hint" id="hint-username">2-20 个字符</div>
+            </div>
+            <div class="form-group">
+              <label>密码</label>
+              <input type="password" id="login-password" placeholder="请输入密码" />
+              <div class="field-hint" id="hint-password">至少 6 个字符</div>
+            </div>
+            <button class="btn-primary" id="submit-btn" onclick="app.handleSubmit()">登录</button>
           </div>
-          <button class="btn-primary" id="login-btn" onclick="app.handleLogin()">登录</button>
-          <button class="btn-secondary" id="register-btn" onclick="app.handleRegister()">注册新账号</button>
-          <div class="login-mode-switch">
-            <span id="login-mode-text">还没有账号？</span>
-            <a href="#" id="login-mode-link" onclick="app.toggleLoginMode(event)">注册</a>
-          </div>
-        </div>
-        <div class="login-tip">
-          <p>💡 首次使用请点击"注册"创建账号</p>
         </div>
       </div>
     </div>
@@ -50,6 +55,7 @@
         </div>
         <div class="header-right">
           <div class="level-badge" id="home-level">Lv.1</div>
+          <div class="logout-btn" onclick="app.logout()" title="退出登录">退出</div>
         </div>
       </div>
 
@@ -692,6 +698,18 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- Custom Dialog -->
+  <div class="dialog-overlay" id="dialog-overlay">
+    <div class="dialog-content">
+      <div class="dialog-title" id="dialog-title"></div>
+      <div class="dialog-message" id="dialog-message"></div>
+      <div class="dialog-input-wrap" id="dialog-input-wrap" style="display:none">
+        <input type="text" class="dialog-input" id="dialog-input">
+      </div>
+      <div class="dialog-actions" id="dialog-actions"></div>
+    </div>
+  </div>
 
   <script src="js/api.js"></script>
   <script src="js/storage.js"></script>
