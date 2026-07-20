@@ -67,19 +67,11 @@ const api = {
   },
 
   async register(username, password) {
-    const result = await this.post('/auth/register', { username, password });
-    if (result.success) {
-      this.setToken(result.data.token);
-    }
-    return result;
+    return this.post('/auth/register', { username, password });
   },
 
   async login(username, password) {
-    const result = await this.post('/auth/login', { username, password });
-    if (result.success) {
-      this.setToken(result.data.token);
-    }
-    return result;
+    return this.post('/auth/login', { username, password });
   },
 
   async getProfile() {
