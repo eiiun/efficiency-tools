@@ -6,6 +6,12 @@ const app = {
   async init() {
     loginPage.init()
 
+    // Safety: clear "undefined" from username field if login.js is outdated
+    var unameInput = document.getElementById('login-username')
+    if (unameInput && unameInput.value === 'undefined') {
+      unameInput.value = ''
+    }
+
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
     }
