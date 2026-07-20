@@ -33,12 +33,17 @@ const api = {
       
       const data = await response.json();
       
-      if (!response.ok) {
-        throw new Error(data.error || '请求失败');
+      // 业务错误（如密码错误、用户不存在）直接返回，让调用方处理
+      if (!response.ok && !data.error) {
+        throw new Error('请求失败');
       }
       
       return data;
     } catch (error) {
+      // 网络错误才抛出
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('NETWORK_ERROR');
+      }
       console.error('API 请求错误:', error);
       throw error;
     }
