@@ -370,7 +370,11 @@ exports.handler = async (event, context) => {
 
   await initDb();
 
-  const path = event.path.replace(/^\/\.netlify\/functions\/api/, '') || '/health';
+  // Handle both redirect paths: /api/xxx (from netlify.toml redirect) and /.netlify/functions/api/xxx (direct)
+  let path = event.path;
+  path = path.replace(/^\/\.netlify\/functions\/api/, '');
+  path = path.replace(/^\/api/, '');
+  path = path || '/health';
 
   try {
     if (path === '/health' || path === '/') {
