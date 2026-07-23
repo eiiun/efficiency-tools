@@ -166,8 +166,8 @@ const accountingPage = {
         <div class="transaction-item">
           <div class="transaction-icon" style="background-color: ${cat.color}20;">${cat.icon}</div>
           <div class="transaction-info">
-            <div class="transaction-category">${t.category}</div>
-            <div class="transaction-note">${t.note || t.date}</div>
+            <div class="transaction-category">${escapeHtml(t.category)}</div>
+            <div class="transaction-note">${escapeHtml(t.note) || t.date}</div>
           </div>
           <div class="transaction-amount ${t.type}">
             ${t.type === 'income' ? '+' : '-'}¥${parseFloat(t.amount).toFixed(2)}
@@ -234,8 +234,13 @@ const accountingPage = {
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
     try {
-      await api.addTransaction(this.modalType, amount, this.selectedCategory, note, dateStr)
-      await store.refreshFromServer()
+      const result = await api.addTransaction(this.modalType, amount, this.selectedCategory, note, dateStr)
+      if (result.success && result.data) {
+        const t = store.mapTransaction(result.data)
+        store.transactions.unshift(t)
+        store.saveTransactions()
+      }
+      await store.refreshUserProfile()
       this.hideAddModal()
       this.render()
       app.showToast('保存成功', 'success')
