@@ -50,8 +50,27 @@ const moodPage = {
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
     try {
-      await api.addMood(this.selectedMood, this.selectedEmoji, content, dateStr)
-      await store.refreshFromServer()
+      const result = await api.addMood(this.selectedMood, this.selectedEmoji, content, dateStr)
+      // 乐观更新：构造本地 mood 对象
+      const d = new Date(dateStr)
+      const moodObj = {
+        id: (result.success && result.data) ? result.data.id : Date.now(),
+        date: dateStr,
+        dateStr: `${d.getMonth() + 1}月${d.getDate()}日`,
+        mood: this.selectedMood,
+        emoji: this.selectedEmoji,
+        content: content,
+        timestamp: Date.now()
+      }
+      // 同一天已有记录则替换，否则新增
+      const existIdx = store.moods.findIndex(m => m.date === dateStr)
+      if (existIdx !== -1) {
+        store.moods[existIdx] = moodObj
+      } else {
+        store.moods.unshift(moodObj)
+      }
+      store.saveMoods()
+      await store.refreshUserProfile()
 
       document.getElementById('mood-content').value = ''
       this.selectedMood = null
@@ -176,7 +195,7 @@ const moodPage = {
         <div class="recent-emoji">${mood.emoji}</div>
         <div class="recent-content">
           <div class="recent-date">${mood.dateStr}</div>
-          <div class="recent-text">${mood.content || '无内容'}</div>
+          <div class="recent-text">${escapeHtml(mood.content) || '无内容'}</div>
         </div>
       </div>
     `).join('')
