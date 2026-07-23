@@ -3,6 +3,7 @@ const notesPage = {
   tags: ['全部', '工作', '生活', '学习', '灵感', '其他'],
   selectedTag: '其他',
   searchKeyword: '',
+  isAdding: false,
 
   init() {
     this.renderTags()
@@ -110,11 +111,15 @@ const notesPage = {
   },
 
   async addNote() {
+    if (this.isAdding) return
+    this.isAdding = true
+
     const title = document.getElementById('notes-title').value.trim()
     const content = document.getElementById('notes-content').value.trim()
 
     if (!title) {
       app.showToast('请输入标题', 'error')
+      this.isAdding = false
       return
     }
 
@@ -131,6 +136,8 @@ const notesPage = {
       app.showToast('保存成功', 'success')
     } catch (e) {
       app.showToast('保存失败', 'error')
+    } finally {
+      this.isAdding = false
     }
   },
 
