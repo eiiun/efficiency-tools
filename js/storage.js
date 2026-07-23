@@ -204,9 +204,9 @@ const store = {
           registerDate: d.registerDate
         }
         this.saveUser()
-        // 同步刷新首页 XP 显示
-        if (typeof homePage !== 'undefined' && homePage.updateUI) {
-          homePage.updateUI()
+        // 同步刷新底部状态栏 XP 显示（所有页面通用）
+        if (typeof app !== 'undefined' && app.updateStatusBar) {
+          app.updateStatusBar()
         }
       }
     } catch (e) {
