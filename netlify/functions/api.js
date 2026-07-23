@@ -392,10 +392,11 @@ async function handleExportData(event) {
   const countdowns = await db.all('SELECT * FROM countdowns WHERE user_id = $1', [decoded.userId]);
   const pomodoros = await db.all('SELECT * FROM pomodoros WHERE user_id = $1', [decoded.userId]);
   const wishlist = await db.all('SELECT * FROM wishlist WHERE user_id = $1', [decoded.userId]);
+  const activities = await db.all('SELECT * FROM activities WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50', [decoded.userId]);
 
   return jsonResponse(200, {
     success: true,
-    data: { todos, notes, moods, transactions, countdowns, pomodoros, wishlist }
+    data: { todos, notes, moods, transactions, countdowns, pomodoros, wishlist, activities }
   });
 }
 
