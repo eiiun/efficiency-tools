@@ -1,4 +1,5 @@
 const API_BASE_URL = '/api';
+const RETRY_QUEUE_KEY = 'api_retry_queue';
 
 const api = {
   getToken() {
@@ -40,8 +41,16 @@ const api = {
       
       return data;
     } catch (error) {
-      // 网络错误才抛出
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      // 网络错误 → 写操作存入重试队列
+      if (error.name === 'TypeError' || (error.message && error.message.includes('fetch'))) {
+        if (options.method && options.method !== 'GET') {
+          try {
+            const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+            queue.push({ endpoint, options, timestamp: Date.now() });
+            if (queue.length > 50) queue.shift();
+            localStorage.setItem(RETRY_QUEUE_KEY, JSON.stringify(queue));
+          } catch (e) { /* localStorage 不可用时忽略 */ }
+        }
         throw new Error('NETWORK_ERROR');
       }
       console.error('API 请求错误:', error);
@@ -207,6 +216,36 @@ const api = {
     } catch (e) {
       console.error('[API] 同步数据到服务器失败:', e.message);
       return false;
+    }
+  },
+
+  async retryPending() {
+    let queue;
+    try {
+      queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+    } catch (e) { return; }
+    if (queue.length === 0) return;
+
+    console.log(`[API] 重试 ${queue.length} 个挂起操作`);
+    const remaining = [];
+    for (const item of queue) {
+      // 超过 24 小时的丢弃
+      if (Date.now() - item.timestamp > 86400000) continue;
+      try {
+        const token = this.getToken();
+        const headers = { 'Content-Type': 'application/json', ...item.options.headers };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}${item.endpoint}`, { ...item.options, headers });
+        if (!res.ok) remaining.push(item);
+      } catch (e) {
+        remaining.push(item);
+      }
+    }
+    localStorage.setItem(RETRY_QUEUE_KEY, JSON.stringify(remaining));
+    if (remaining.length === 0) {
+      console.log('[API] 所有挂起操作已重试成功');
+    } else {
+      console.log(`[API] 仍有 ${remaining.length} 个操作待重试`);
     }
   }
 };
