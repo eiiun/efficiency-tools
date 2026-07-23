@@ -43,6 +43,28 @@ function getIdFromPath(path) {
   return parseInt(parts[parts.length - 1]);
 }
 
+async function addActivityAndXP(userId, icon, text, xp) {
+  try {
+    await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [userId, icon, text, xp]);
+    if (xp > 0) {
+      const user = await db.get('SELECT xp, total_xp, level FROM users WHERE id = $1', [userId]);
+      if (user) {
+        let newXp = user.xp + xp;
+        let newLevel = user.level;
+        let newTotalXp = user.total_xp;
+        while (newXp >= newTotalXp) {
+          newXp -= newTotalXp;
+          newLevel += 1;
+          newTotalXp = newLevel * 100 + (newLevel - 1) * 50;
+        }
+        await db.run('UPDATE users SET xp = $1, level = $2, total_xp = $3 WHERE id = $4', [newXp, newLevel, newTotalXp, userId]);
+      }
+    }
+  } catch (error) {
+    console.error('添加活动失败:', error);
+  }
+}
+
 // ========== Auth Routes ==========
 
 async function handleRegister(event) {
@@ -60,7 +82,7 @@ async function handleRegister(event) {
     [username, hashedPassword]
   );
   const userId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
-  await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [userId, '⭐', '注册账号', 10]);
+  await addActivityAndXP(userId, '⭐', '注册账号', 10);
   const token = jwt.sign({ userId, username }, JWT_SECRET, { expiresIn: '30d' });
 
   return jsonResponse(200, { success: true, data: { userId, name: username, level: 1, xp: 0, totalXp: 100, token } });
@@ -112,7 +134,7 @@ async function handleAddTodo(event) {
     [decoded.userId, content, priority || 'medium']
   );
   const todoId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
-  await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [decoded.userId, '✅', '添加待办', 5]);
+  await addActivityAndXP(decoded.userId, '✅', `添加待办: ${content}`, 5);
   const todo = await db.get('SELECT * FROM todos WHERE id = $1', [todoId]);
   return jsonResponse(201, { success: true, data: todo });
 }
@@ -122,12 +144,32 @@ async function handleUpdateTodo(event) {
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const id = getIdFromPath(event.path);
   const { content, priority, completed } = parseBody(event);
+
+  const todo = await db.get('SELECT * FROM todos WHERE id = $1 AND user_id = $2', [id, decoded.userId]);
+  if (!todo) return jsonResponse(404, { success: false, error: '待办不存在' });
+
+  if (completed && !todo.completed) {
+    await addActivityAndXP(decoded.userId, '🎉', `完成待办: ${todo.content}`, 10);
+  } else if (!completed && todo.completed) {
+    // 取消完成：扣除 10 XP，最低为 0
+    try {
+      const user = await db.get('SELECT xp, level, total_xp FROM users WHERE id = $1', [decoded.userId]);
+      if (user) {
+        const newXp = Math.max(0, user.xp - 10);
+        await db.run('UPDATE users SET xp = $1 WHERE id = $2', [newXp, decoded.userId]);
+        await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [decoded.userId, '↩️', `取消完成待办: ${todo.content}`, -10]);
+      }
+    } catch (error) {
+      console.error('扣除XP失败:', error);
+    }
+  }
+
   await db.run(
     'UPDATE todos SET content = COALESCE($1, content), priority = COALESCE($2, priority), completed = COALESCE($3, completed), updated_at = CURRENT_TIMESTAMP WHERE id = $4 AND user_id = $5',
     [content, priority, completed !== undefined ? (completed ? 1 : 0) : null, id, decoded.userId]
   );
-  const todo = await db.get('SELECT * FROM todos WHERE id = $1', [id]);
-  return jsonResponse(200, { success: true, data: todo });
+  const updated = await db.get('SELECT * FROM todos WHERE id = $1', [id]);
+  return jsonResponse(200, { success: true, data: updated });
 }
 
 async function handleDeleteTodo(event) {
@@ -156,6 +198,7 @@ async function handleAddNote(event) {
     [decoded.userId, title, content, tags]
   );
   const noteId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
+  await addActivityAndXP(decoded.userId, '📝', '创建笔记', 5);
   const note = await db.get('SELECT * FROM notes WHERE id = $1', [noteId]);
   return jsonResponse(201, { success: true, data: note });
 }
@@ -196,6 +239,7 @@ async function handleAddMood(event) {
   const { mood, emoji, content, date } = parseBody(event);
   await db.run('INSERT INTO moods (user_id, mood, emoji, content, date) VALUES ($1, $2, $3, $4, $5)',
     [decoded.userId, mood, emoji, content, date]);
+  await addActivityAndXP(decoded.userId, emoji, '记录心情', 5);
   return jsonResponse(201, { success: true });
 }
 
@@ -214,6 +258,8 @@ async function handleAddTransaction(event) {
   const { type, amount, category, note, date } = parseBody(event);
   await db.run('INSERT INTO transactions (user_id, type, amount, category, note, date) VALUES ($1, $2, $3, $4, $5, $6)',
     [decoded.userId, type, parseFloat(amount), category, note, date]);
+  const icon = type === 'income' ? '💰' : '💸';
+  await addActivityAndXP(decoded.userId, icon, `${type === 'income' ? '收入' : '支出'}: ¥${amount}`, 2);
   return jsonResponse(201, { success: true });
 }
 
@@ -240,6 +286,7 @@ async function handleAddCountdown(event) {
   const { title, date, category } = parseBody(event);
   await db.run('INSERT INTO countdowns (user_id, title, date, category) VALUES ($1, $2, $3, $4)',
     [decoded.userId, title, date, category || 'other']);
+  await addActivityAndXP(decoded.userId, '⏳', `添加倒计时: ${title}`, 5);
   return jsonResponse(201, { success: true });
 }
 
@@ -266,6 +313,7 @@ async function handleAddPomodoro(event) {
   const { duration, type } = parseBody(event);
   await db.run('INSERT INTO pomodoros (user_id, duration, type) VALUES ($1, $2, $3)',
     [decoded.userId, parseInt(duration), type || 'focus']);
+  await addActivityAndXP(decoded.userId, '🍅', `完成番茄钟 ${duration}分钟`, Math.floor(duration / 5) + 5);
   return jsonResponse(201, { success: true });
 }
 
@@ -282,9 +330,14 @@ async function handleAddWish(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { title, note, category } = parseBody(event);
-  await db.run('INSERT INTO wishlist (user_id, title, note, category) VALUES ($1, $2, $3, $4)',
-    [decoded.userId, title, note, category || 'other']);
-  return jsonResponse(201, { success: true });
+  const result = await db.insert(
+    'INSERT INTO wishlist (user_id, title, note, category) VALUES ($1, $2, $3, $4) RETURNING id',
+    [decoded.userId, title, note, category || 'other']
+  );
+  const wishId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
+  await addActivityAndXP(decoded.userId, '✨', `添加愿望: ${title}`, 3);
+  const wish = await db.get('SELECT * FROM wishlist WHERE id = $1', [wishId]);
+  return jsonResponse(201, { success: true, data: wish });
 }
 
 async function handleUpdateWish(event) {
@@ -292,12 +345,21 @@ async function handleUpdateWish(event) {
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const id = getIdFromPath(event.path);
   const { title, note, category, completed } = parseBody(event);
+
+  const wish = await db.get('SELECT * FROM wishlist WHERE id = $1 AND user_id = $2', [id, decoded.userId]);
+  if (!wish) return jsonResponse(404, { success: false, error: '愿望不存在' });
+
   await db.run(
     'UPDATE wishlist SET title = COALESCE($1, title), note = COALESCE($2, note), category = COALESCE($3, category), completed = COALESCE($4, completed) WHERE id = $5 AND user_id = $6',
     [title, note, category, completed !== undefined ? (completed ? 1 : 0) : null, id, decoded.userId]
   );
-  const wish = await db.get('SELECT * FROM wishlist WHERE id = $1', [id]);
-  return jsonResponse(200, { success: true, data: wish });
+
+  if (completed && !wish.completed) {
+    await addActivityAndXP(decoded.userId, '🌟', `实现愿望: ${wish.title}`, 20);
+  }
+
+  const updated = await db.get('SELECT * FROM wishlist WHERE id = $1', [id]);
+  return jsonResponse(200, { success: true, data: updated });
 }
 
 async function handleDeleteWish(event) {
@@ -341,6 +403,12 @@ async function handleImportData(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { todos, notes, moods, transactions, countdowns, pomodoros, wishlist } = parseBody(event);
+
+  // 先清除旧数据（全量同步）
+  const tables = ['todos', 'notes', 'moods', 'transactions', 'countdowns', 'pomodoros', 'wishlist', 'activities'];
+  for (const table of tables) {
+    try { await db.run(`DELETE FROM ${table} WHERE user_id = $1`, [decoded.userId]); } catch (e) { /* 忽略不存在的表 */ }
+  }
 
   if (todos) for (const t of todos) await db.run('INSERT INTO todos (user_id, content, priority, completed) VALUES ($1, $2, $3, $4)', [decoded.userId, t.content, t.priority, t.completed]);
   if (notes) for (const n of notes) await db.run('INSERT INTO notes (user_id, title, content, tags) VALUES ($1, $2, $3, $4)', [decoded.userId, n.title, n.content, n.tags]);
