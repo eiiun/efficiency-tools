@@ -62,7 +62,7 @@ const countdownPage = {
         <div class="countdown-item" data-id="${item.id}">
           <div class="countdown-delete" onclick="countdownPage.deleteCountdown(${item.id})">✕</div>
           <div class="countdown-header">
-            <div class="countdown-title">${item.title}</div>
+            <div class="countdown-title">${escapeHtml(item.title)}</div>
             <div class="countdown-tag" style="background-color: ${catInfo.color}20; color: ${catInfo.color};">
               ${catInfo.icon} ${catInfo.name}
             </div>
@@ -121,8 +121,13 @@ const countdownPage = {
     }
 
     try {
-      await api.addCountdown(title, date, this.selectedCategory)
-      await store.refreshFromServer()
+      const result = await api.addCountdown(title, date, this.selectedCategory)
+      if (result.success && result.data) {
+        const item = store.mapCountdown(result.data)
+        store.countdowns.unshift(item)
+        store.saveCountdowns()
+      }
+      await store.refreshUserProfile()
       this.hideAddModal()
       this.render()
       app.showToast('添加成功', 'success')
@@ -134,12 +139,19 @@ const countdownPage = {
   async deleteCountdown(id) {
     if (!await app.showConfirm('删除倒计时', '确定要删除这个倒计时吗？', true)) return
 
+    const idx = store.countdowns.findIndex(c => c.id === id)
+    if (idx === -1) return
+    const removed = store.countdowns.splice(idx, 1)[0]
+    store.saveCountdowns()
+    this.render()
+
     try {
       await api.deleteCountdown(id)
-      await store.refreshFromServer()
-      this.render()
       app.showToast('删除成功', 'success')
     } catch (e) {
+      store.countdowns.splice(idx, 0, removed)
+      store.saveCountdowns()
+      this.render()
       app.showToast('删除失败', 'error')
     }
   }
