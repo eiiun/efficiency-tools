@@ -1,9 +1,18 @@
+// XSS 防护：转义 HTML 特殊字符
+function escapeHtml(str) {
+  if (!str) return ''
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+}
+
 const app = {
   currentPage: 'login',
   pages: ['login', 'home', 'todo', 'notes', 'mood', 'accounting', 'countdown', 'pomodoro', 'wishlist', 'achievements'],
   isLoginMode: true,
 
   async init() {
+    // 动态注入草地装饰（替代原来 HTML 中重复 9 次的 SVG）
+    this.injectGrass()
+
     // 先隐藏所有页面，避免刷新时闪登录页
     document.querySelectorAll('.page').forEach(page => {
       page.classList.add('hidden')
@@ -12,6 +21,12 @@ const app = {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
     }
+
+    // 网络恢复时自动重试挂起的操作
+    window.addEventListener('online', () => {
+      console.log('[App] 网络已恢复，重试挂起操作')
+      api.retryPending()
+    })
 
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash.slice(1)
@@ -27,6 +42,7 @@ const app = {
         if (result.success) {
           store.user = result.data
           await store.refreshFromServer()
+          api.retryPending()
           this.navigate('home', false)
           return
         }
@@ -43,6 +59,17 @@ const app = {
       unameInput.value = ''
     }
     this.navigate('login', false)
+  },
+
+  injectGrass() {
+    const grassHtml = '<div class="px-ground"><svg class="px-grass-svg" viewBox="0 0 400 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="400" height="8" fill="#4ade80"/><rect x="0" y="8" width="400" height="4" fill="#22c55e"/><rect x="0" y="12" width="400" height="12" fill="#16a34a"/><rect x="10" y="0" width="2" height="4" fill="#4ade80"/><rect x="30" y="0" width="2" height="3" fill="#4ade80"/><rect x="55" y="0" width="2" height="5" fill="#4ade80"/><rect x="80" y="0" width="2" height="3" fill="#4ade80"/><rect x="110" y="0" width="2" height="4" fill="#4ade80"/><rect x="135" y="0" width="2" height="3" fill="#4ade80"/><rect x="160" y="0" width="2" height="5" fill="#4ade80"/><rect x="190" y="0" width="2" height="3" fill="#4ade80"/><rect x="215" y="0" width="2" height="4" fill="#4ade80"/><rect x="240" y="0" width="2" height="3" fill="#4ade80"/><rect x="270" y="0" width="2" height="5" fill="#4ade80"/><rect x="295" y="0" width="2" height="3" fill="#4ade80"/><rect x="320" y="0" width="2" height="4" fill="#4ade80"/><rect x="350" y="0" width="2" height="3" fill="#4ade80"/><rect x="375" y="0" width="2" height="5" fill="#4ade80"/><rect x="395" y="0" width="2" height="3" fill="#4ade80"/><rect x="45" y="2" width="2" height="2" fill="#fbbf24"/><rect x="150" y="1" width="2" height="2" fill="#f87171"/><rect x="260" y="2" width="2" height="2" fill="#a78bfa"/><rect x="340" y="1" width="2" height="2" fill="#fbbf24"/></svg></div>'
+    const grassPages = ['home', 'todo', 'notes', 'mood', 'accounting', 'countdown', 'pomodoro', 'wishlist', 'achievements']
+    grassPages.forEach(name => {
+      const page = document.getElementById(`page-${name}`)
+      if (page && !page.querySelector('.px-ground')) {
+        page.insertAdjacentHTML('beforeend', grassHtml)
+      }
+    })
   },
 
   navigate(pageName, updateHash = true) {
