@@ -74,8 +74,8 @@ const notesPage = {
     empty.style.display = 'none'
     list.innerHTML = notes.map(note => `
       <div class="note-card" onclick="notesPage.viewNote(${note.id})">
-        <div class="note-title">${note.title}</div>
-        <div class="note-preview">${note.content}</div>
+        <div class="note-title">${escapeHtml(note.title)}</div>
+        <div class="note-preview">${escapeHtml(note.content)}</div>
         <div class="note-footer">
           <span class="note-tag">${note.tag}</span>
           <span class="note-time">${this.formatDate(note.updatedAt)}</span>
@@ -119,8 +119,13 @@ const notesPage = {
     }
 
     try {
-      await api.addNote(title, content, this.selectedTag)
-      await store.refreshFromServer()
+      const result = await api.addNote(title, content, this.selectedTag)
+      if (result.success && result.data) {
+        const note = store.mapNote(result.data)
+        store.notes.unshift(note)
+        store.saveNotes()
+      }
+      await store.refreshUserProfile()
       this.hideAddModal()
       this.render()
       app.showToast('保存成功', 'success')
@@ -135,12 +140,21 @@ const notesPage = {
 
     const newContent = await app.showPrompt('编辑笔记', '修改笔记内容', note.content)
     if (newContent !== null && newContent !== note.content) {
+      // 乐观更新
+      const oldContent = note.content
+      note.content = newContent
+      note.updatedAt = Date.now()
+      store.saveNotes()
+      this.render()
+
       try {
         await api.updateNote(id, { content: newContent })
-        await store.refreshFromServer()
-        this.render()
+        await store.refreshUserProfile()
         app.showToast('已更新', 'success')
       } catch (e) {
+        note.content = oldContent
+        store.saveNotes()
+        this.render()
         app.showToast('更新失败', 'error')
       }
     }
