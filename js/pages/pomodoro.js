@@ -1,3 +1,5 @@
+const POMODORO_STORAGE_KEY = 'pomodoro_timer_state'
+
 const pomodoroPage = {
   currentMode: 'focus',
   focusMinutes: 25,
@@ -8,6 +10,7 @@ const pomodoroPage = {
   circumference: 2 * Math.PI * 90,
 
   init() {
+    this.restoreState()
     this.updateDisplay()
     this.updateProgress()
     this.renderHistory()
@@ -19,10 +22,65 @@ const pomodoroPage = {
     this.renderHistory()
   },
 
+  saveState() {
+    const state = {
+      currentMode: this.currentMode,
+      focusMinutes: this.focusMinutes,
+      restMinutes: this.restMinutes,
+      remainingSeconds: this.remainingSeconds,
+      isRunning: this.isRunning,
+      savedAt: Date.now()
+    }
+    localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(state))
+  },
+
+  clearState() {
+    localStorage.removeItem(POMODORO_STORAGE_KEY)
+  },
+
+  restoreState() {
+    try {
+      const raw = localStorage.getItem(POMODORO_STORAGE_KEY)
+      if (!raw) return
+
+      const state = JSON.parse(raw)
+      this.currentMode = state.currentMode || 'focus'
+      this.focusMinutes = state.focusMinutes || 25
+      this.restMinutes = state.restMinutes || 5
+      this.remainingSeconds = state.remainingSeconds
+
+      // 更新设置显示
+      document.getElementById('pomodoro-focus-min').textContent = this.focusMinutes
+      document.getElementById('pomodoro-rest-min').textContent = this.restMinutes
+      document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mode === this.currentMode)
+      })
+      document.getElementById('pomodoro-mode-label').textContent =
+        this.currentMode === 'focus' ? '专注中' : '休息中'
+
+      if (state.isRunning && state.savedAt) {
+        // 计算离线经过的秒数
+        const elapsed = Math.floor((Date.now() - state.savedAt) / 1000)
+        this.remainingSeconds = Math.max(0, this.remainingSeconds - elapsed)
+
+        if (this.remainingSeconds <= 0) {
+          // 离线期间已完成，直接完成
+          this.completeSession()
+        } else {
+          // 继续计时
+          this.startTimer()
+        }
+      }
+    } catch (e) {
+      console.warn('[Pomodoro] 恢复状态失败:', e.message)
+    }
+  },
+
   async switchMode(mode) {
     if (this.isRunning) {
       if (!await app.showConfirm('切换模式', '当前计时将被重置，确定切换吗？')) return
       this.stopTimer()
+      this.clearState()
     }
 
     this.currentMode = mode
@@ -90,6 +148,8 @@ const pomodoroPage = {
         this.completeSession()
       }
     }, 1000)
+
+    this.saveState()
   },
 
   pauseTimer() {
@@ -99,6 +159,7 @@ const pomodoroPage = {
       clearInterval(this.timerInterval)
       this.timerInterval = null
     }
+    this.saveState()
   },
 
   resetTimer() {
@@ -113,6 +174,7 @@ const pomodoroPage = {
     document.getElementById('pomodoro-start-btn').textContent = '开始'
     this.updateDisplay()
     this.updateProgress()
+    this.clearState()
   },
 
   stopTimer() {
@@ -129,8 +191,13 @@ const pomodoroPage = {
     const duration = this.currentMode === 'focus' ? this.focusMinutes : this.restMinutes
 
     try {
-      await api.addPomodoro(duration, this.currentMode)
-      await store.refreshFromServer()
+      const result = await api.addPomodoro(duration, this.currentMode)
+      if (result.success && result.data) {
+        const p = store.mapPomodoro(result.data)
+        store.pomodoros.unshift(p)
+        store.savePomodoros()
+      }
+      await store.refreshUserProfile()
 
       this.updateStats()
       this.renderHistory()
