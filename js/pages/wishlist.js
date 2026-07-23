@@ -1,6 +1,7 @@
 const wishlistPage = {
   currentCategory: 'all',
   selectedCategory: 'other',
+  isAdding: false,
   categoryInfo: {
     buy: { name: '想买', icon: '🛍️', bgColor: '#ffe0a0', textColor: '#8b6914' },
     do: { name: '想做', icon: '✅', bgColor: '#b5e8b5', textColor: '#2d7a2d' },
@@ -108,11 +109,15 @@ const wishlistPage = {
   },
 
   async addWish() {
+    if (this.isAdding) return
+    this.isAdding = true
+
     const title = document.getElementById('wishlist-title').value.trim()
     const note = document.getElementById('wishlist-note').value.trim()
 
     if (!title) {
       app.showToast('请输入愿望名称', 'error')
+      this.isAdding = false
       return
     }
 
@@ -129,6 +134,8 @@ const wishlistPage = {
       app.showToast('添加成功', 'success')
     } catch (e) {
       app.showToast('添加失败', 'error')
+    } finally {
+      this.isAdding = false
     }
   },
 
