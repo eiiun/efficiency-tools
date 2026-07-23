@@ -237,10 +237,14 @@ async function handleAddMood(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { mood, emoji, content, date } = parseBody(event);
-  await db.run('INSERT INTO moods (user_id, mood, emoji, content, date) VALUES ($1, $2, $3, $4, $5)',
-    [decoded.userId, mood, emoji, content, date]);
+  const result = await db.insert(
+    'INSERT INTO moods (user_id, mood, emoji, content, date) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+    [decoded.userId, mood, emoji, content, date]
+  );
+  const moodId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
   await addActivityAndXP(decoded.userId, emoji, '记录心情', 5);
-  return jsonResponse(201, { success: true });
+  const moodData = await db.get('SELECT * FROM moods WHERE id = $1', [moodId]);
+  return jsonResponse(201, { success: true, data: moodData });
 }
 
 // ========== Transaction Routes ==========
@@ -256,11 +260,15 @@ async function handleAddTransaction(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { type, amount, category, note, date } = parseBody(event);
-  await db.run('INSERT INTO transactions (user_id, type, amount, category, note, date) VALUES ($1, $2, $3, $4, $5, $6)',
-    [decoded.userId, type, parseFloat(amount), category, note, date]);
+  const result = await db.insert(
+    'INSERT INTO transactions (user_id, type, amount, category, note, date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+    [decoded.userId, type, parseFloat(amount), category, note, date]
+  );
+  const transactionId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
   const icon = type === 'income' ? '💰' : '💸';
   await addActivityAndXP(decoded.userId, icon, `${type === 'income' ? '收入' : '支出'}: ¥${amount}`, 2);
-  return jsonResponse(201, { success: true });
+  const transaction = await db.get('SELECT * FROM transactions WHERE id = $1', [transactionId]);
+  return jsonResponse(201, { success: true, data: transaction });
 }
 
 async function handleDeleteTransaction(event) {
@@ -284,10 +292,14 @@ async function handleAddCountdown(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { title, date, category } = parseBody(event);
-  await db.run('INSERT INTO countdowns (user_id, title, date, category) VALUES ($1, $2, $3, $4)',
-    [decoded.userId, title, date, category || 'other']);
-  await addActivityAndXP(decoded.userId, '⏳', `添加倒计时: ${title}`, 5);
-  return jsonResponse(201, { success: true });
+  const result = await db.insert(
+    'INSERT INTO countdowns (user_id, title, date, category) VALUES ($1, $2, $3, $4) RETURNING id',
+    [decoded.userId, title, date, category || 'other']
+  );
+  const countdownId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
+  await addActivityAndXP(decoded.userId, '', `添加倒计时: ${title}`, 5);
+  const countdown = await db.get('SELECT * FROM countdowns WHERE id = $1', [countdownId]);
+  return jsonResponse(201, { success: true, data: countdown });
 }
 
 async function handleDeleteCountdown(event) {
@@ -311,10 +323,14 @@ async function handleAddPomodoro(event) {
   const decoded = authMiddleware(event);
   if (!decoded) return jsonResponse(401, { success: false, error: '未授权' });
   const { duration, type } = parseBody(event);
-  await db.run('INSERT INTO pomodoros (user_id, duration, type) VALUES ($1, $2, $3)',
-    [decoded.userId, parseInt(duration), type || 'focus']);
-  await addActivityAndXP(decoded.userId, '🍅', `完成番茄钟 ${duration}分钟`, Math.floor(duration / 5) + 5);
-  return jsonResponse(201, { success: true });
+  const result = await db.insert(
+    'INSERT INTO pomodoros (user_id, duration, type) VALUES ($1, $2, $3) RETURNING id',
+    [decoded.userId, parseInt(duration), type || 'focus']
+  );
+  const pomodoroId = result.lastInsertRowid?.id || result.lastInsertRowid || 0;
+  await addActivityAndXP(decoded.userId, '', `完成番茄钟 ${duration}分钟`, Math.floor(duration / 5) + 5);
+  const pomodoro = await db.get('SELECT * FROM pomodoros WHERE id = $1', [pomodoroId]);
+  return jsonResponse(201, { success: true, data: pomodoro });
 }
 
 // ========== Wishlist Routes ==========
