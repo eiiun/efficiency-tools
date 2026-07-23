@@ -6,7 +6,24 @@ const achievementsPage = {
     { id: 4, name: '记录者', icon: '✏️', bgColor: '#f0f8ff', description: '写第一篇笔记', check: () => store.notes.length > 0 },
     { id: 5, name: '笔记达人', icon: '📝', bgColor: '#f0f8ff', description: '写10篇笔记', check: () => store.notes.length >= 10 },
     { id: 6, name: '心情记录者', icon: '💗', bgColor: '#ffd6e0', description: '记录一次心情', check: () => store.moods.length > 0 },
-    { id: 7, name: '连续7天', icon: '🔥', bgColor: '#ffe0a0', description: '连续记录7天', check: () => false },
+    { id: 7, name: '连续7天', icon: '🔥', bgColor: '#ffe0a0', description: '连续记录7天', check: () => {
+      if (store.moods.length === 0) return false
+      const dates = [...new Set(store.moods.map(m => m.date))].sort().reverse()
+      const today = new Date().toISOString().split('T')[0]
+      let start = dates[0]
+      if (start !== today) {
+        const d = new Date(); d.setDate(d.getDate() - 1)
+        start = d.toISOString().split('T')[0]
+        if (dates[0] !== start) return false
+      }
+      let streak = 1
+      for (let i = 1; i < dates.length; i++) {
+        const diff = Math.round((new Date(dates[i - 1]) - new Date(dates[i])) / 86400000)
+        if (diff === 1) { streak++; if (streak >= 7) return true }
+        else break
+      }
+      return streak >= 7
+    } },
     { id: 8, name: '番茄新手', icon: '🍅', bgColor: '#ff9f9f', description: '完成第一个番茄钟', check: () => store.pomodoros.some(p => p.mode === 'focus') },
     { id: 9, name: '番茄达人', icon: '🏆', bgColor: '#ff9f9f', description: '累计完成10个番茄钟', check: () => store.pomodoros.filter(p => p.mode === 'focus').length >= 10 },
     { id: 10, name: '记账新手', icon: '💰', bgColor: '#b5e8b5', description: '记第一笔账', check: () => store.transactions.length > 0 },
@@ -75,7 +92,7 @@ const achievementsPage = {
     container.innerHTML = activities.map(activity => `
       <div class="activity-item">
         <div class="activity-icon">${activity.icon}</div>
-        <div class="activity-text">${activity.text}</div>
+        <div class="activity-text">${escapeHtml(activity.text)}</div>
         ${activity.xp > 0 ? `<div class="activity-xp">+${activity.xp} XP</div>` : ''}
         <div class="activity-time">${this.formatTime(activity.timestamp)}</div>
       </div>
