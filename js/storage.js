@@ -190,6 +190,51 @@ const store = {
     }
   },
 
+  // 仅刷新用户信息（XP/等级），不拉取全量数据
+  async refreshUserProfile() {
+    try {
+      const result = await api.getProfile()
+      if (result.success && result.data) {
+        const d = result.data
+        this.user = {
+          name: d.name,
+          level: d.level,
+          xp: d.xp,
+          totalXp: d.totalXp,
+          registerDate: d.registerDate
+        }
+        this.saveUser()
+        // 同步刷新首页 XP 显示
+        if (typeof homePage !== 'undefined' && homePage.updateUI) {
+          homePage.updateUI()
+        }
+      }
+    } catch (e) {
+      console.warn('[Store] 刷新用户信息失败:', e.message)
+    }
+  },
+
+  // 服务端数据格式 → 前端格式 转换工具
+  mapTodo(t) {
+    return { id: t.id, title: t.content, priority: t.priority || 'medium', completed: !!t.completed, createdAt: t.created_at ? new Date(t.created_at).getTime() : Date.now(), completedAt: t.completed_at ? new Date(t.completed_at).getTime() : null }
+  },
+  mapNote(n) {
+    return { id: n.id, title: n.title, content: n.content || '', tag: n.tags || '其他', createdAt: n.created_at ? new Date(n.created_at).getTime() : Date.now(), updatedAt: n.updated_at ? new Date(n.updated_at).getTime() : Date.now() }
+  },
+  mapTransaction(t) {
+    return { id: t.id, type: t.type, amount: String(t.amount), category: t.category, note: t.note || '', date: t.date, timestamp: t.created_at ? new Date(t.created_at).getTime() : Date.now() }
+  },
+  mapCountdown(c) {
+    return { id: c.id, title: c.title, date: c.date, category: c.category || 'other', createdAt: c.created_at ? new Date(c.created_at).getTime() : Date.now() }
+  },
+  mapPomodoro(p) {
+    const dt = p.completed_at ? new Date(p.completed_at) : new Date()
+    return { id: p.id, mode: p.type || 'focus', duration: p.duration, date: dt.toISOString().split('T')[0], time: `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}` }
+  },
+  mapWish(w) {
+    return { id: w.id, title: w.title, note: w.note || '', category: w.category || 'other', completed: !!w.completed, createdAt: w.created_at ? new Date(w.created_at).getTime() : Date.now() }
+  },
+
   saveUser() {
     storage.set('user', this.user)
   },
