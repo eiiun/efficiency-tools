@@ -4,6 +4,7 @@ const accountingPage = {
   currentType: 'expense',
   modalType: 'expense',
   selectedCategory: '餐饮',
+  isAdding: false,
   expenseCategories: [
     { name: '餐饮', icon: '🍜', color: '#ff9966' },
     { name: '交通', icon: '🚗', color: '#66b3ff' },
@@ -222,11 +223,15 @@ const accountingPage = {
   },
 
   async addTransaction() {
+    if (this.isAdding) return
+    this.isAdding = true
+
     const amount = parseFloat(document.getElementById('accounting-amount').value)
     const note = document.getElementById('accounting-note').value.trim()
 
     if (!amount || amount <= 0) {
       app.showToast('请输入有效金额', 'error')
+      this.isAdding = false
       return
     }
 
@@ -246,6 +251,8 @@ const accountingPage = {
       app.showToast('保存成功', 'success')
     } catch (e) {
       app.showToast('保存失败', 'error')
+    } finally {
+      this.isAdding = false
     }
   }
 }
