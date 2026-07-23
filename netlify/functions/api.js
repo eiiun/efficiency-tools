@@ -45,7 +45,7 @@ function getIdFromPath(path) {
 
 async function addActivityAndXP(userId, icon, text, xp) {
   try {
-    await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [userId, icon, text, xp]);
+    await db.run('INSERT INTO activities (user_id, icon, text, xp, created_at) VALUES ($1, $2, $3, $4, $5)', [userId, icon, text, xp, new Date().toISOString()]);
     if (xp > 0) {
       const user = await db.get('SELECT xp, total_xp, level FROM users WHERE id = $1', [userId]);
       if (user) {
@@ -96,7 +96,7 @@ async function handleLogin(event) {
   if (!user) return jsonResponse(401, { success: false, error: '该账号尚未注册，请先注册', code: 'USER_NOT_FOUND' });
   if (!bcrypt.compareSync(password, user.password)) return jsonResponse(401, { success: false, error: '密码错误，请重试' });
 
-  await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [user.id, '✅', '登录成功', 0]);
+  await db.run('INSERT INTO activities (user_id, icon, text, xp, created_at) VALUES ($1, $2, $3, $4, $5)', [user.id, '✅', '登录成功', 0, new Date().toISOString()]);
   const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
 
   return jsonResponse(200, {
@@ -157,7 +157,7 @@ async function handleUpdateTodo(event) {
       if (user) {
         const newXp = Math.max(0, user.xp - 10);
         await db.run('UPDATE users SET xp = $1 WHERE id = $2', [newXp, decoded.userId]);
-        await db.run('INSERT INTO activities (user_id, icon, text, xp) VALUES ($1, $2, $3, $4)', [decoded.userId, '↩️', `取消完成待办: ${todo.content}`, -10]);
+        await db.run('INSERT INTO activities (user_id, icon, text, xp, created_at) VALUES ($1, $2, $3, $4, $5)', [decoded.userId, '↩️', `取消完成待办: ${todo.content}`, -10, new Date().toISOString()]);
       }
     } catch (error) {
       console.error('扣除XP失败:', error);
