@@ -104,10 +104,10 @@ const app = {
     if (pageName === 'wishlist') wishlistPage.onShow()
     if (pageName === 'achievements') achievementsPage.onShow()
 
-    // 底部状态栏：只在首页显示
+    // 底部状态栏：所有页面都显示
     const statusBar = document.getElementById('px-status-bar')
     if (statusBar) {
-      statusBar.style.display = pageName === 'home' ? '' : 'none'
+      statusBar.style.display = ''
     }
 
     window.scrollTo(0, 0)
@@ -320,6 +320,19 @@ const app = {
     el.textContent = `+${amount} XP`
     document.body.appendChild(el)
     setTimeout(() => el.remove(), 1300)
+  },
+
+  // 全局更新底部状态栏（任何页面都可调用）
+  updateStatusBar() {
+    if (!store.user) return
+    const bar = document.getElementById('px-status-bar')
+    if (bar) {
+      bar.style.display = ''
+      document.getElementById('bar-level').textContent = store.user.level
+      document.getElementById('bar-xp').textContent = store.user.xp
+      const streak = store.user.streak || 0
+      document.getElementById('bar-streak').textContent = streak
+    }
   },
 
   showAchievementPopup(achievement) {
