@@ -190,7 +190,7 @@ const store = {
     }
   },
 
-  // 仅刷新用户信息（XP/等级），不拉取全量数据
+  // 刷新用户信息（XP/等级）+ 活动列表，操作后调用即可自动更新动态
   async refreshUserProfile() {
     try {
       const result = await api.getProfile()
@@ -208,6 +208,22 @@ const store = {
         if (typeof app !== 'undefined' && app.updateStatusBar) {
           app.updateStatusBar()
         }
+      }
+      // 顺便刷新活动列表，让新动态立即可见
+      try {
+        const actResult = await api.getActivities()
+        if (actResult.success && actResult.data) {
+          this.activities = actResult.data.map(a => ({
+            id: a.id,
+            icon: a.icon || '📌',
+            text: a.text,
+            xp: a.xp || 0,
+            timestamp: new Date(a.created_at).getTime()
+          }))
+          this.saveActivities()
+        }
+      } catch (e) {
+        console.warn('[Store] 刷新活动列表失败:', e.message)
       }
     } catch (e) {
       console.warn('[Store] 刷新用户信息失败:', e.message)
