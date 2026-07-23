@@ -1,6 +1,7 @@
 const countdownPage = {
   currentCategory: 'all',
   selectedCategory: 'other',
+  isAdding: false,
   categoryInfo: {
     holiday: { name: '节日', icon: '🎉', color: '#ff6b6b' },
     birthday: { name: '生日', icon: '🎂', color: '#ffa502' },
@@ -107,16 +108,21 @@ const countdownPage = {
   },
 
   async addCountdown() {
+    if (this.isAdding) return
+    this.isAdding = true
+
     const title = document.getElementById('countdown-title').value.trim()
     const date = document.getElementById('countdown-date').value
 
     if (!title) {
       app.showToast('请输入事件名称', 'error')
+      this.isAdding = false
       return
     }
 
     if (!date) {
       app.showToast('请选择日期', 'error')
+      this.isAdding = false
       return
     }
 
@@ -133,6 +139,8 @@ const countdownPage = {
       app.showToast('添加成功', 'success')
     } catch (e) {
       app.showToast('添加失败', 'error')
+    } finally {
+      this.isAdding = false
     }
   },
 
