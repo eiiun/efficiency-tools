@@ -1,6 +1,7 @@
 const todoPage = {
   currentFilter: 'all',
   currentPriority: 'medium',
+  isAdding: false,
 
   init() {
     this.render()
@@ -65,7 +66,7 @@ const todoPage = {
       <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
         <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" onclick="todoPage.toggle(${todo.id})"></div>
         <div class="todo-content">
-          <span class="todo-title">${todo.title}</span>
+          <span class="todo-title">${escapeHtml(todo.title)}</span>
           <span class="todo-time">${this.formatDate(todo.createdAt)}</span>
         </div>
         <div class="todo-priority priority-${todo.priority}">${this.getPriorityLabel(todo.priority)}</div>
@@ -106,22 +107,33 @@ const todoPage = {
   },
 
   async addTodo() {
+    if (this.isAdding) return
+    this.isAdding = true
+
     const input = document.getElementById('todo-input')
     const title = input.value.trim()
 
     if (!title) {
       app.showToast('请输入任务内容', 'error')
+      this.isAdding = false
       return
     }
 
     try {
-      await api.addTodo(title, this.currentPriority)
-      await store.refreshFromServer()
+      const result = await api.addTodo(title, this.currentPriority)
+      if (result.success && result.data) {
+        const todo = store.mapTodo(result.data)
+        store.todos.unshift(todo)
+        store.saveTodos()
+      }
+      await store.refreshUserProfile()
       this.hideAddModal()
       this.render()
       app.showToast('添加成功', 'success')
     } catch (e) {
       app.showToast('添加失败', 'error')
+    } finally {
+      this.isAdding = false
     }
   },
 
@@ -130,14 +142,24 @@ const todoPage = {
     if (!todo) return
 
     const wasCompleted = todo.completed
+    // 乐观更新：先切换本地状态
+    todo.completed = !todo.completed
+    store.saveTodos()
+    this.render()
+
     try {
-      await api.updateTodo(id, { completed: !todo.completed })
-      await store.refreshFromServer()
-      this.render()
+      await api.updateTodo(id, { completed: todo.completed })
+      await store.refreshUserProfile()
       if (!wasCompleted) {
         app.showXpFloat(10)
+      } else {
+        app.showXpFloat(-10)
       }
     } catch (e) {
+      // 回滚
+      todo.completed = wasCompleted
+      store.saveTodos()
+      this.render()
       app.showToast('操作失败', 'error')
     }
   },
@@ -145,12 +167,21 @@ const todoPage = {
   async deleteTodo(id) {
     if (!await app.showConfirm('删除任务', '确定要删除这个任务吗？', true)) return
 
+    // 乐观更新：先从本地移除
+    const idx = store.todos.findIndex(t => t.id === id)
+    if (idx === -1) return
+    const removed = store.todos.splice(idx, 1)[0]
+    store.saveTodos()
+    this.render()
+
     try {
       await api.deleteTodo(id)
-      await store.refreshFromServer()
-      this.render()
       app.showToast('删除成功', 'success')
     } catch (e) {
+      // 回滚
+      store.todos.splice(idx, 0, removed)
+      store.saveTodos()
+      this.render()
       app.showToast('删除失败', 'error')
     }
   }
