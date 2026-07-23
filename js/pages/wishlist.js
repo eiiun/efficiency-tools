@@ -81,8 +81,8 @@ const wishlistPage = {
       <div class="wish-item ${wish.completed ? 'completed' : ''}" data-id="${wish.id}">
         <div class="wish-checkbox ${wish.completed ? 'checked' : ''}" onclick="wishlistPage.toggleComplete(${wish.id})"></div>
         <div class="wish-info">
-          <span class="wish-title">${wish.title}</span>
-          ${wish.note ? `<span class="wish-note">${wish.note}</span>` : ''}
+          <span class="wish-title">${escapeHtml(wish.title)}</span>
+          ${wish.note ? `<span class="wish-note">${escapeHtml(wish.note)}</span>` : ''}
         </div>
         <div class="wish-tag" style="background-color: ${catInfo.bgColor}; color: ${catInfo.textColor};">
           ${catInfo.icon} ${catInfo.name}
@@ -117,8 +117,13 @@ const wishlistPage = {
     }
 
     try {
-      await api.addWish(title, note, this.selectedCategory)
-      await store.refreshFromServer()
+      const result = await api.addWish(title, note, this.selectedCategory)
+      if (result.success && result.data) {
+        const wish = store.mapWish(result.data)
+        store.wishlist.unshift(wish)
+        store.saveWishlist()
+      }
+      await store.refreshUserProfile()
       this.hideAddModal()
       this.render()
       app.showToast('添加成功', 'success')
@@ -131,16 +136,21 @@ const wishlistPage = {
     const wish = store.wishlist.find(w => w.id === id)
     if (!wish) return
 
-    try {
-      await api.updateWish(id, !wish.completed)
-      await store.refreshFromServer()
+    const wasCompleted = wish.completed
+    wish.completed = !wish.completed
+    store.saveWishlist()
+    this.render()
 
-      if (!wish.completed) {
+    try {
+      await api.updateWish(id, wish.completed)
+      if (!wasCompleted) {
+        await store.refreshUserProfile()
         app.showToast('恭喜达成！', 'success')
       }
-
-      this.render()
     } catch (e) {
+      wish.completed = wasCompleted
+      store.saveWishlist()
+      this.render()
       app.showToast('操作失败', 'error')
     }
   },
@@ -148,12 +158,19 @@ const wishlistPage = {
   async deleteWish(id) {
     if (!await app.showConfirm('删除愿望', '确定要删除这个愿望吗？', true)) return
 
+    const idx = store.wishlist.findIndex(w => w.id === id)
+    if (idx === -1) return
+    const removed = store.wishlist.splice(idx, 1)[0]
+    store.saveWishlist()
+    this.render()
+
     try {
       await api.deleteWish(id)
-      await store.refreshFromServer()
-      this.render()
       app.showToast('删除成功', 'success')
     } catch (e) {
+      store.wishlist.splice(idx, 0, removed)
+      store.saveWishlist()
+      this.render()
       app.showToast('删除失败', 'error')
     }
   }
